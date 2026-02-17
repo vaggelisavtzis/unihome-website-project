@@ -1,0 +1,56 @@
+<section class="favorites-page">
+  <div class="layout-container">
+    <div class="favorites-layout">
+      <header class="favorites-header surface-card surface-card--interactive">
+        <div class="header-copy">
+          <span class="badge">Αγαπημένα</span>
+          <h1>Τα αποθηκευμένα σου σπίτια</h1>
+          <p>
+            Όλα τα ακίνητα που έχεις προσθέσει στη λίστα αγαπημένων συγκεντρωμένα σε ένα μέρος.
+            Επισκέψου τα ξανά και επικοινώνησε με τον ιδιοκτήτη όποτε θελήσεις.
+          </p>
+        </div>
+        <a class="btn-secondary" routerLink="/properties">Συνέχισε την αναζήτηση</a>
+      </header>
+
+      <div class="feedback-banner" *ngIf="feedback as alert" [class.error]="alert.tone === 'error'">
+        {{ alert.text }}
+      </div>
+
+      <section class="favorites-grid" *ngIf="favorites.length; else emptyState">
+        <article
+          class="favorite-card surface-card surface-card--interactive"
+          *ngFor="let property of favorites; trackBy: trackByProperty"
+        >
+          <div class="card-media">
+            <img [src]="property.images[0]" [alt]="property.title" />
+            <div class="price">{{ property.price | number:'1.0-0' }} € / μήνα</div>
+          </div>
+
+          <div class="card-body">
+            <h2>{{ property.title }}</h2>
+            <p class="location">{{ property.location.city }}, {{ property.location.address }}</p>
+            <ul class="property-meta">
+              <li>{{ property.area }} τ.μ.</li>
+              <li>{{ property.rooms }} δωμάτια</li>
+              <li>{{ property.type }}</li>
+            </ul>
+
+            <div class="actions">
+              <a [routerLink]="['/properties', property.id]" class="btn-secondary">Προβολή λεπτομερειών</a>
+              <button type="button" class="btn-primary" (click)="removeFavorite(property.id)">Αφαίρεση</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <ng-template #emptyState>
+        <div class="empty-state surface-card">
+          <h3>Δεν έχεις αγαπημένα ακόμη</h3>
+          <p>Πρόσθεσε ακίνητα που σου άρεσαν για να τα βρεις εύκολα αργότερα.</p>
+          <a class="btn-primary" routerLink="/properties">Βρες το επόμενο σπίτι σου</a>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-label="Unihome icon white">
+  <defs>
+    <!-- Force all channels to white while preserving alpha from the source image -->
+    <filter id="whiteout" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0" />
+    </filter>
+  </defs>
+  <image href="/assets/logo_white.png" x="0" y="0" width="64" height="64" filter="url(#whiteout)" />
+</svg>

@@ -1,0 +1,49 @@
+<div class="location-picker">
+  <label [attr.for]="inputId" [class.visually-hidden]="hideLabel">{{ label }}</label>
+  <div class="input-row">
+    <input
+      [id]="inputId"
+      type="text"
+      [placeholder]="placeholder"
+      [ngModel]="value"
+      (ngModelChange)="onInputChange($event)"
+      autocomplete="off"
+    />
+    <button
+      type="button"
+      class="btn-secondary map-btn"
+      (click)="openMap()"
+      [disabled]="isMapOpen"
+    >
+      <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+      <span>Χάρτης</span>
+    </button>
+  </div>
+  <p class="selection-hint" *ngIf="selectedLabel">
+    Επιλέχθηκε από χάρτη: {{ selectedLabel }}
+  </p>
+</div>
+
+<div class="map-overlay" *ngIf="isMapOpen">
+  <div class="backdrop" (click)="closeMap()"></div>
+  <div class="map-dialog" role="dialog" aria-modal="true" [attr.aria-label]="mapDialogTitle">
+    <header class="map-dialog__header">
+      <h3>{{ mapDialogTitle }}</h3>
+      <button type="button" class="close-btn" (click)="closeMap()" aria-label="Κλείσιμο">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="map-container">
+      <div #mapRoot class="map"></div>
+      <div class="map-status" *ngIf="statusMessage">{{ statusMessage }}</div>
+    </div>
+
+    <footer class="map-dialog__footer">
+      <span class="pending" *ngIf="pendingAddress">{{ pendingLabel }}: {{ pendingAddress }}</span>
+      <button type="button" class="btn-primary" (click)="applyPending()" [disabled]="!pendingAddress">
+        Χρήση περιοχής
+      </button>
+    </footer>
+  </div>
+</div>

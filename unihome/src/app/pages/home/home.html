@@ -1,0 +1,148 @@
+
+<div class="home">
+  
+  <section class="hero">
+    <div class="carousel-bg">
+      <div *ngFor="let img of carouselImages; let i = index" 
+           [ngClass]="{'active': i === currentImageIndex, 'inactive': i !== currentImageIndex}"
+           [style.backgroundImage]="'url(' + img + ')'"
+           class="carousel-image"></div>
+    </div>
+    <div class="overlay">
+  <h1>Βρες το νέο σου σπίτι με το <span>Unihome</span></h1>
+      <p>Ενοικίαση, συγκατοίκηση ή προσωρινή διαμονή — όλα σε ένα μέρος!</p>
+
+      <div class="search-bar">
+        <div class="search-type-switch" role="group" aria-label="Κατηγορίες αναζήτησης">
+          <button
+            type="button"
+            *ngFor="let option of searchOptions"
+            class="switch-option"
+            [class.active]="selectedSearchType === option.value"
+            (click)="selectSearchType(option.value)"
+            [attr.aria-pressed]="selectedSearchType === option.value"
+          >
+            <i [class]="option.icon"></i>
+            <div class="copy">
+              <span class="label">{{ option.label }}</span>
+              <small>{{ option.hint }}</small>
+            </div>
+          </button>
+        </div>
+
+        <div class="search-controls">
+          <app-location-picker
+            class="location-field"
+            label="Περιοχή"
+            placeholder="Π.χ. Καρλόβασι, Βαθύ, Πυθαγόρειο..."
+            [hideLabel]="true"
+            [granularity]="'area'"
+            [(value)]="searchLocation"
+          ></app-location-picker>
+          <button
+            class="btn-primary search-btn"
+            type="button"
+            (click)="onSearch()"
+          >
+            Αναζήτηση
+          </button>
+        </div>
+        <div class="quick-filters" *ngIf="shouldShowQuickFilters">
+          <span class="label">Γρήγορα φίλτρα:</span>
+          <button
+            type="button"
+            class="filter-chip"
+            *ngFor="let filter of visibleQuickFilters"
+            (click)="onQuickFilter(filter)"
+            [class.active]="isQuickFilterActive(filter.id)"
+          >
+            <i [class]="filter.icon" aria-hidden="true"></i>
+            <span>{{ filter.label }}</span>
+          </button>
+        </div>
+        <div class="quick-filter-explainer" *ngIf="activeQuickFilterDetails.length">
+          <div class="explainer-item" *ngFor="let detail of activeQuickFilterDetails">
+            <i [class]="detail.icon" aria-hidden="true"></i>
+            <div class="copy">
+              <span class="title">{{ detail.label }}</span>
+              <p>{{ detail.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  <section class="features">
+    <h2>Ανακάλυψε περισσότερα στο Unihome</h2>
+
+    <div class="cards">
+      <button class="card" (click)="onFeatureClick('roommates')">
+        <h3>Βρες Συγκάτοικο</h3>
+        <p>Ψάχνεις άτομο να μοιραστείς το σπίτι και τα έξοδα; Αναρτήσε ή βρες αγγελίες εύκολα.</p>
+      </button>
+
+      <button class="card" (click)="onFeatureClick('temporary')">
+        <h3>Προσωρινή Διαμονή</h3>
+        <p>Ανακάλυψε οικονομικά καταλύματα για λίγες μέρες ή εβδομάδες στη Σάμο.</p>
+      </button>
+
+      <button class="card" (click)="onFeatureClick('properties/add')">
+        <h3>Καταχώρηση Αγγελίας</h3>
+  <p>Είσαι ιδιοκτήτης; Ανέβασε το ακίνητό σου και βρες αξιόπιστους ενοικιαστές άμεσα!</p>
+      </button>
+
+      <button class="card" (click)="onFeatureClick('favorites')">
+        <h3>Αποθήκευσε αγαπημένα</h3>
+        <p>Κράτησε συγκεντρωμένες τις καλύτερες επιλογές σου και συνέχισε την αναζήτηση από εκεί που σταμάτησες.</p>
+      </button>
+
+      <button class="card" (click)="onFeatureClick('contact')">
+        <h3>Μίλησε με την ομάδα</h3>
+        <p>Έχεις απορίες για την πλατφόρμα ή θέλεις να μας στείλεις ιδέες; Είμαστε εδώ για να βοηθήσουμε.</p>
+      </button>
+    </div>
+  </section>
+
+  <section class="insights">
+    <div class="insights-container">
+      <header>
+        <span class="badge">Unihome Highlights</span>
+  <h2>Γιατί τα μέλη της κοινότητας και οι ιδιοκτήτες εμπιστεύονται το Unihome</h2>
+        <p>
+          Συνδυάζουμε αξιόπιστα ακίνητα, πραγματικά προφίλ και πρακτικά εργαλεία ώστε η αναζήτηση ή η καταχώρηση να
+          γίνεται μέσα σε λίγα λεπτά.
+        </p>
+      </header>
+
+      <div class="insight-grid">
+        <article class="insight-card">
+          <h3>150+ διαθέσιμα ακίνητα</h3>
+          <p>Φιλτραρισμένα listings με επιβεβαιωμένες βασικές πληροφορίες και σαφή κατάσταση σπιτιού.</p>
+        </article>
+        <article class="insight-card">
+          <h3>Προσαρμοσμένη αναζήτηση</h3>
+          <p>Συνδύασε ενοικίαση, προσωρινή διαμονή, συγκατοίκηση ή πώληση για να βρεις γρήγορα αυτό που χρειάζεσαι.</p>
+        </article>
+        <article class="insight-card">
+          <h3>Οδηγοί &amp; tips</h3>
+          <p>Αξιοποίησε συμβουλές για συμβόλαια, roommates και checklists εγκατάστασης σε μία κεντρική βιβλιοθήκη.</p>
+        </article>
+      </div>
+
+      <div class="insight-footer">
+        <ul class="quick-links">
+          <li>
+            <i class="fa-solid fa-shield-heart" aria-hidden="true"></i>
+            Ασφαλείς διαδικασίες με προστασία προσωπικών δεδομένων
+          </li>
+          <li>
+            <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+            Δίκτυο μελών από όλη τη Σάμο και συνεργαζόμενων ιδιοκτητών
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>

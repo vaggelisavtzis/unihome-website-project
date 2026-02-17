@@ -1,0 +1,139 @@
+<section class="property-details-page">
+  <div class="layout-container">
+    <ng-container *ngIf="property as details; else missingState">
+      <div class="details-layout">
+        <div class="details-top">
+          <button type="button" class="link-back" (click)="navigateBack()">
+            ← Όλες οι αγγελίες
+          </button>
+
+          <div class="feedback-banner" *ngIf="feedback as alert" [class.error]="alert.tone === 'error'">
+            {{ alert.text }}
+          </div>
+        </div>
+
+        <header class="details-header surface-card surface-card--interactive">
+          <div class="header-meta">
+            <span class="badge">{{ details.type }}</span>
+            <h1>{{ details.title }}</h1>
+            <p class="location">
+              {{ details.location.city }}, {{ details.location.address }}
+            </p>
+            <ul class="header-stats">
+              <li>{{ details.area }} τ.μ.</li>
+              <li>{{ details.rooms }} δωμάτια</li>
+              <li>Αγγελία από {{ details.createdAt | date: 'd MMMM yyyy' }}</li>
+            </ul>
+          </div>
+          <div class="header-actions">
+            <div class="price">{{ details.price | number:'1.0-0' }} € / μήνα</div>
+            <button type="button" class="btn-primary" (click)="toggleFavorite()">
+              {{ isFavorite ? 'Αφαίρεση από αγαπημένα' : 'Αποθήκευση στα αγαπημένα' }}
+            </button>
+            <button
+              type="button"
+              class="btn-danger"
+              *ngIf="canDeleteProperty()"
+              (click)="deleteProperty()"
+            >
+              Διαγραφή αγγελίας
+            </button>
+          </div>
+        </header>
+
+        <section class="details-gallery surface-card" *ngIf="heroImage">
+          <div class="hero-image">
+            <img [src]="heroImage" [alt]="details.title" />
+          </div>
+          <div class="thumbnail-strip" *ngIf="gallery.length">
+            <button
+              type="button"
+              class="thumbnail"
+              *ngFor="let image of gallery"
+              (click)="selectImage(image)"
+            >
+              <img [src]="image" [alt]="details.title" />
+            </button>
+          </div>
+        </section>
+
+        <div class="details-main">
+          <article class="details-content surface-card">
+            <section class="description">
+              <h2>Περιγραφή</h2>
+              <p>{{ details.description }}</p>
+            </section>
+
+            <section class="features" *ngIf="displayFeatures.length">
+              <h3>Χαρακτηριστικά</h3>
+              <ul>
+                <li *ngFor="let feature of displayFeatures">{{ feature }}</li>
+              </ul>
+            </section>
+          </article>
+
+          <aside class="details-sidebar">
+            <section class="stats-card surface-card">
+              <h3>Βασικές πληροφορίες</h3>
+              <ul>
+                <li><span>Τύπος:</span> {{ details.type }}</li>
+                <li><span>Επιφάνεια:</span> {{ details.area }} τ.μ.</li>
+                <li><span>Δωμάτια:</span> {{ details.rooms }}</li>
+                <li><span>Επιπλωμένο:</span> {{ details.basics.furnished ? 'Ναι' : 'Όχι' }}</li>
+                <li><span>Ζημιές:</span> {{ details.basics.hasDamage ? 'Υπάρχουν' : 'Καμία' }}</li>
+                <li><span>Τοποθεσία:</span> {{ details.location.city }} ({{ details.location.postalCode }})</li>
+              </ul>
+            </section>
+
+            <section class="contact-card surface-card">
+              <h3>Στοιχεία επικοινωνίας</h3>
+              <ng-container *ngIf="isLoggedIn && details.contact; else loginPrompt">
+                <p class="contact-name">{{ details.contact.name }}</p>
+                <p class="contact-detail">Τηλ: {{ details.contact.phone }}</p>
+                <p class="contact-detail">Email: {{ details.contact.email }}</p>
+                <p class="contact-detail" *ngIf="details.contact.instagram">
+                  <a [href]="details.contact.instagram" target="_blank" rel="noopener">Instagram</a>
+                </p>
+                <p class="contact-detail" *ngIf="details.contact.facebook">
+                  <a [href]="details.contact.facebook" target="_blank" rel="noopener">Facebook</a>
+                </p>
+              </ng-container>
+              <ng-template #loginPrompt>
+                <p>
+                  Συνδέσου για να δεις τον ιδιοκτήτη και να επικοινωνήσεις με ασφάλεια.
+                </p>
+                <a
+                  class="btn-secondary"
+                  routerLink="/auth/login"
+                  [queryParams]="{ redirectTo: '/properties/' + details.id }"
+                >
+                  Μετάβαση στη σύνδεση
+                </a>
+              </ng-template>
+            </section>
+
+            <section class="map-card surface-card" *ngIf="mapUrl">
+              <h3>Χάρτης περιοχής</h3>
+              <iframe
+                [src]="mapUrl"
+                loading="lazy"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <ng-template #missingState>
+    <div class="layout-container missing-card surface-card">
+      <h2>Η αγγελία δεν βρέθηκε</h2>
+      <p>Ίσως έχει αφαιρεθεί ή άλλαξε ο σύνδεσμος.</p>
+      <button type="button" class="btn-secondary" (click)="navigateBack()">
+        Επιστροφή στη λίστα
+      </button>
+    </div>
+  </ng-template>
+</section>

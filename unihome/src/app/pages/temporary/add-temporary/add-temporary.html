@@ -1,0 +1,201 @@
+<section class="add-temporary-page">
+  <div class="layout-container">
+    <header class="form-header surface-card surface-card--interactive">
+      <span class="badge">{{ badgeLabel }}</span>
+      <h1>{{ heading }}</h1>
+      <p>
+        Δήλωσε δωμάτια, ξενώνες ή ευκαιρίες φιλοξενίας ώστε οι φοιτητές να βρίσκουν εύκολα προσωρινή στέγη.
+        Συμπλήρωσε τα βασικά στοιχεία και ενημέρωσε για τυχόν κλεισίματα στο ημερολόγιο.
+      </p>
+    </header>
+
+    <form class="form-shell surface-card" (ngSubmit)="onSubmit()">
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Βασικές πληροφορίες</h2>
+          <p>Περιέγραψε τη διαμονή και την κατηγορία στην οποία ανήκει.</p>
+        </div>
+        <div class="field-grid">
+          <label class="form-group">
+            <span>Τίτλος καταχώρησης</span>
+            <input type="text" name="title" [(ngModel)]="form.title" required>
+          </label>
+          <label class="form-group">
+            <span>Τύπος διαμονής</span>
+            <select name="type" [(ngModel)]="form.type" required>
+              <option *ngFor="let type of stayTypes" [value]="type">{{ type }}</option>
+            </select>
+          </label>
+          <label class="form-group">
+            <span>Κόστος ανά διανυκτέρευση (€)</span>
+            <input type="number" name="price" min="0" [(ngModel)]="form.pricePerNight" [disabled]="form.costCategory === 'free'" required>
+          </label>
+          <label class="form-group">
+            <span>Ελάχιστος αριθμός διανυκτερεύσεων</span>
+            <input type="number" name="minNights" min="1" [(ngModel)]="form.minNights" required>
+          </label>
+          <label class="form-group">
+            <span>Κόστος</span>
+            <select name="costCategory" [(ngModel)]="form.costCategory">
+              <option *ngFor="let option of costOptions" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </label>
+        </div>
+        <label class="form-group">
+          <span>Περιγραφή</span>
+          <textarea name="description" rows="4" [(ngModel)]="form.description" required placeholder="Περιέγραψε τον χώρο, τις παροχές και ό,τι άλλο είναι σημαντικό για τη διαμονή."></textarea>
+        </label>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Τοποθεσία & συντεταγμένες</h2>
+          <p>Η διεύθυνση και προαιρετικά οι συντεταγμένες βοηθούν τα μέλη να προγραμματίσουν τη διαμονή.</p>
+        </div>
+        <div class="field-grid">
+          <label class="form-group">
+            <span>Διεύθυνση</span>
+            <input type="text" name="address" [(ngModel)]="form.location.address" required>
+          </label>
+          <label class="form-group">
+            <span>Πόλη</span>
+            <input type="text" name="city" [(ngModel)]="form.location.city" required>
+          </label>
+          <label class="form-group">
+            <span>Ταχυδρομικός κώδικας</span>
+            <input type="text" name="postalCode" [(ngModel)]="form.location.postalCode" required>
+          </label>
+          <label class="form-group">
+            <span>Γεωγραφικό πλάτος (προαιρετικό)</span>
+            <input type="text" name="lat" [(ngModel)]="form.location.lat" placeholder="37.75">
+          </label>
+          <label class="form-group">
+            <span>Γεωγραφικό μήκος (προαιρετικό)</span>
+            <input type="text" name="lng" [(ngModel)]="form.location.lng" placeholder="26.97">
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Παροχές & φωτογραφίες</h2>
+          <p>Επίλεξε παροχές και πρόσθεσε φωτογραφίες από τον υπολογιστή σου.</p>
+        </div>
+        <div class="amenities-grid">
+          <label *ngFor="let amenity of amenityOptions" class="amenity-item">
+            <input
+              type="checkbox"
+              [value]="amenity"
+              (change)="toggleAmenity(amenity)"
+              [checked]="amenitySelected(amenity)"
+            >
+            <span>{{ amenity }}</span>
+          </label>
+        </div>
+        <div class="form-group file-input">
+          <label for="tempImages">Επιλογή φωτογραφιών</label>
+          <input
+            type="file"
+            id="tempImages"
+            name="tempImages"
+            multiple
+            accept="image/*"
+            (change)="onFileSelect($event)"
+          >
+          <p class="hint">Μπορείς να επιλέξεις έως 10 εικόνες.</p>
+        </div>
+        <div class="form-feedback" *ngIf="imageError" [class.error]="true">{{ imageError }}</div>
+        <div class="existing-images" *ngIf="existingImages.length">
+          <h3>Τρέχουσες εικόνες</h3>
+          <ul>
+            <li *ngFor="let image of existingImages; trackBy: trackByImageUrl">
+              <img [src]="image" [alt]="form.title || 'Υπάρχουσα εικόνα'" loading="lazy">
+              <button
+                type="button"
+                class="link-button"
+                (click)="removeExistingImage(image)"
+              >Αφαίρεση</button>
+            </li>
+          </ul>
+        </div>
+        <ul class="selected-images" *ngIf="selectedFiles.length">
+          <li *ngFor="let file of selectedFiles; trackBy: trackBySelectedFile">
+            <span>{{ file.name }}</span>
+            <button type="button" class="link-button link-button--danger" (click)="removeSelectedFile(file)">Αφαίρεση</button>
+          </li>
+        </ul>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Διαθεσιμότητα</h2>
+          <p>Κατάγραψε κλεισίματα ή σημειώσεις για να ενημερώνεται σωστά η λίστα.</p>
+        </div>
+        <div class="field-grid">
+          <label class="form-group">
+            <span>Ημερομηνία έναρξης κλεισίματος</span>
+            <input type="date" name="unavailableStart" [(ngModel)]="form.availability.startDate">
+          </label>
+          <label class="form-group">
+            <span>Ημερομηνία λήξης κλεισίματος</span>
+            <input type="date" name="unavailableEnd" [(ngModel)]="form.availability.endDate">
+          </label>
+          <label class="form-group">
+            <span>Ετικέτα/σχόλιο για το κλείσιμο</span>
+            <input type="text" name="unavailableLabel" [(ngModel)]="form.availability.label" placeholder="Π.χ. Ανακαίνιση">
+          </label>
+        </div>
+        <label class="form-group">
+          <span>Σημείωση για τη διαθεσιμότητα</span>
+          <textarea name="availabilityNote" rows="3" [(ngModel)]="form.availability.note" placeholder="Π.χ. Ενημέρωση ημερολογίου κάθε Παρασκευή."></textarea>
+        </label>
+        <label class="form-group">
+          <span>Σύνδεσμος ημερολογίου (προαιρετικό)</span>
+          <input type="url" name="calendarUrl" [(ngModel)]="form.availability.calendarUrl" placeholder="https://calendar.example.com/booking">
+        </label>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Στοιχεία επικοινωνίας</h2>
+          <p>Οι ενδιαφερόμενοι θα επικοινωνήσουν με τον υπεύθυνο που θα ορίσεις εδώ.</p>
+        </div>
+        <div class="field-grid">
+          <label class="form-group">
+            <span>Όνομα υπεύθυνου</span>
+            <input type="text" name="contactName" [(ngModel)]="form.contact.name" required>
+          </label>
+          <label class="form-group">
+            <span>Τηλέφωνο</span>
+            <input type="tel" name="contactPhone" [(ngModel)]="form.contact.phone" required>
+          </label>
+          <label class="form-group">
+            <span>Email (προαιρετικό)</span>
+            <input type="email" name="contactEmail" [(ngModel)]="form.contact.email">
+          </label>
+          <label class="form-group">
+            <span>Website / φόρμα κράτησης (προαιρετικό)</span>
+            <input type="url" name="contactWebsite" [(ngModel)]="form.contact.website" placeholder="https://...">
+          </label>
+          <label class="form-group">
+            <span>Instagram (προαιρετικό)</span>
+            <input type="url" name="contactInstagram" [(ngModel)]="form.contact.instagram" placeholder="https://instagram.com/...">
+          </label>
+          <label class="form-group">
+            <span>Facebook (προαιρετικό)</span>
+            <input type="url" name="contactFacebook" [(ngModel)]="form.contact.facebook" placeholder="https://facebook.com/...">
+          </label>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" routerLink="/temporary">Ακύρωση</button>
+        <button type="submit" class="btn-primary" [disabled]="isSaving">{{ submitLabel }}</button>
+      </div>
+
+      <div class="form-feedback" *ngIf="feedback as alert" [class.error]="alert.tone === 'error'">
+        {{ alert.message }}
+      </div>
+    </form>
+  </div>
+</section>

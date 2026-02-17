@@ -1,0 +1,149 @@
+<section class="temporary-page">
+  <div class="layout-container temporary-layout">
+    <header class="temporary-hero surface-card surface-card--interactive">
+      <div class="hero-copy">
+        <span class="badge">Προσωρινή Διαμονή</span>
+        <h1>Ευέλικτες λύσεις φιλοξενίας για λίγες νύχτες στη Σάμο</h1>
+        <p>
+          Επίλεξε ανάμεσα σε δωμάτια, ξενώνες, Airbnb και hostels κοντά στις πανεπιστημιουπόλεις
+          ή βρες δωρεάν φιλοξενία από την κοινότητα για φοιτητές χωρίς διαθέσιμο budget.
+          Φιλτράρισε με βάση την περιοχή, το κόστος και τις παροχές που χρειάζεσαι.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <a
+          *ngIf="canCreateStay"
+          class="btn-secondary"
+          routerLink="/temporary/add"
+        >
+          Καταχώρηση αγγελίας προσωρινής διαμονής
+        </a>
+        <a class="btn-secondary" routerLink="/contact">Χρειάζεσαι βοήθεια; Επικοινώνησε μαζί μας</a>
+      </div>
+    </header>
+
+    <section class="filters-card surface-card">
+      <form class="filters-grid" (ngSubmit)="applyFilters()">
+        <div class="filter-field">
+          <label for="type">Τύπος διαμονής</label>
+          <select id="type" name="type" [(ngModel)]="formFilters.type">
+            <option value="">Όλα</option>
+            <option *ngFor="let type of stayTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="maxPrice">Κόστος έως (€/βράδυ)</label>
+          <input
+            id="maxPrice"
+            type="number"
+            min="0"
+            name="maxPrice"
+            [(ngModel)]="formFilters.maxPrice"
+          />
+        </div>
+
+        <app-location-picker
+          class="filter-field"
+          label="Περιοχή"
+          placeholder="Καρλόβασι, Βαθύ, Πυθαγόρειο..."
+          [(value)]="formFilters.location"
+        ></app-location-picker>
+
+        <div class="filter-field">
+          <label for="cost">Κόστος</label>
+          <select id="cost" name="cost" [(ngModel)]="formFilters.cost">
+            <option value="">Όλα</option>
+            <option *ngFor="let option of costOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+
+        <div class="filters-actions">
+          <button type="submit" class="btn-primary">Εφαρμογή</button>
+          <button type="button" class="btn-secondary" (click)="resetFilters()">Καθαρισμός</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="results-meta">
+      <div class="results-count">
+        {{ visibleStays.length }} {{ visibleStays.length === 1 ? 'επιλογή' : 'επιλογές' }} προσωρινής διαμονής
+      </div>
+      <div class="results-sort">
+        <label for="temporarySort">Ταξινόμηση:</label>
+        <select
+          id="temporarySort"
+          [(ngModel)]="selectedSort"
+          (ngModelChange)="onSortChange($event)"
+        >
+          <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+      </div>
+      <div class="results-note">
+        Τα στοιχεία επικοινωνίας εμφανίζονται μόνο σε συνδεδεμένους χρήστες για την ασφάλειά σου.
+      </div>
+    </section>
+
+    <section class="stays-grid" *ngIf="visibleStays.length; else emptyState">
+      <article
+        class="stay-card surface-card surface-card--interactive"
+        *ngFor="let stay of visibleStays; trackBy: trackByStay"
+      >
+        <div class="card-media">
+          <img [src]="stay.images[0]" [alt]="stay.title" />
+          <span class="stay-type" [class.hosting]="stay.type === 'Φιλοξενία'">{{ stay.type }}</span>
+        </div>
+
+        <div class="card-body">
+          <div class="card-heading">
+            <h2>{{ stay.title }}</h2>
+            <span class="price" [class.free]="stay.costCategory === 'free'">{{ formatPrice(stay) }}</span>
+            <p class="location">{{ stay.location.city }}, {{ stay.location.address }}</p>
+            <p class="min-nights">Ελάχιστη διαμονή: {{ stay.minNights }} {{ stay.minNights === 1 ? 'νύχτα' : 'νύχτες' }}</p>
+          </div>
+
+          <p class="description">{{ stay.description }}</p>
+
+          <ul class="amenities" *ngIf="stay.amenities.length">
+            <li *ngFor="let amenity of stay.amenities | slice:0:4">{{ amenity }}</li>
+          </ul>
+        </div>
+
+        <div class="card-footer">
+          <a class="btn-secondary" [href]="mapLinkFor(stay)" target="_blank" rel="noopener">Προβολή στο χάρτη</a>
+
+          <ng-container *ngIf="isLoggedIn; else loginPrompt">
+            <div class="contact">
+              <span class="contact-name">{{ stay.contact.name }}</span>
+              <span>{{ stay.contact.phone }}</span>
+              <a *ngIf="stay.contact.email" [href]="'mailto:' + stay.contact.email">{{ stay.contact.email }}</a>
+              <a *ngIf="stay.contact.instagram" [href]="stay.contact.instagram" target="_blank" rel="noopener">Instagram</a>
+              <a *ngIf="stay.contact.facebook" [href]="stay.contact.facebook" target="_blank" rel="noopener">Facebook</a>
+              <a
+                *ngIf="stay.contact.website"
+                class="btn-primary"
+                [href]="stay.contact.website"
+                target="_blank"
+                rel="noopener"
+              >Κλείσε διαμονή</a>
+            </div>
+          </ng-container>
+
+          <ng-template #loginPrompt>
+            <p class="login-required">
+              <a routerLink="/auth/login">Συνδέσου</a> για να δεις τα στοιχεία επικοινωνίας και να κλείσεις θέση.
+            </p>
+          </ng-template>
+        </div>
+      </article>
+    </section>
+
+    <ng-template #emptyState>
+      <div class="empty-state surface-card">
+        <h3>Δεν βρέθηκαν καταλύματα με τα συγκεκριμένα κριτήρια.</h3>
+        <p>Δοκίμασε να προσαρμόσεις την αναζήτηση ή να μηδενίσεις τα φίλτρα.</p>
+        <button type="button" class="btn-secondary" (click)="resetFilters()">Επαναφορά φίλτρων</button>
+      </div>
+    </ng-template>
+  </div>
+</section>

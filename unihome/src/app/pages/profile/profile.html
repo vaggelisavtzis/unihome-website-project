@@ -1,0 +1,360 @@
+<section class="profile-page">
+  <div class="layout-container profile-layout" *ngIf="user; else guestState">
+    <header class="profile-hero surface-card surface-card--interactive">
+      <div class="hero-copy">
+        <span class="badge">Το προφίλ μου</span>
+        <h1>{{ displayName }}</h1>
+        <p>
+          <ng-container *ngIf="isOwner; else memberSubtitle">
+            Ιδιοκτήτης στο <span>Unihome</span>
+          </ng-container>
+          <ng-template #memberSubtitle>
+            <ng-container *ngIf="studentProfile?.university as university; else genericMember">
+              Μέλος της κοινότητας του <span>{{ university }}</span>
+            </ng-container>
+            <ng-template #genericMember>
+              Μέλος στο <span>Unihome</span>
+            </ng-template>
+          </ng-template>
+        </p>
+      </div>
+      <div class="hero-meta">
+        <div class="meta-block">
+          <span class="meta-label">Email</span>
+          <span class="meta-value">{{ email }}</span>
+        </div>
+        <div class="meta-block">
+          <span class="meta-label">Τηλέφωνο</span>
+          <span class="meta-value">{{ phone }}</span>
+        </div>
+        <div class="meta-block" *ngIf="hasDisplayAge">
+          <span class="meta-label">Ηλικία</span>
+          <span class="meta-value">{{ displayAge }}</span>
+        </div>
+        <div class="meta-actions">
+          <button
+            type="button"
+            class="btn-secondary"
+            *ngIf="!isEditing"
+            (click)="startEdit()"
+          >
+            Επεξεργασία
+          </button>
+          <button
+            type="button"
+            class="btn-secondary"
+            *ngIf="isEditing"
+            (click)="cancelEdit()"
+          >
+            Ακύρωση
+          </button>
+          <button type="button" class="btn-primary" (click)="logout()">Αποσύνδεση</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="profile-card surface-card personal-card">
+      <div class="card-header">
+        <h2>Προσωπικά στοιχεία</h2>
+      </div>
+      <div *ngIf="feedback as alert" class="profile-feedback" [class.error]="alert.tone === 'error'">
+        {{ alert.text }}
+      </div>
+
+      <form
+        *ngIf="isEditing && editModel"
+        #profileEditForm="ngForm"
+        (ngSubmit)="saveProfile(profileEditForm)"
+        class="profile-edit-form"
+      >
+        <div class="form-grid">
+          <label class="form-field">
+            <span>Όνομα</span>
+            <input type="text" name="firstName" [(ngModel)]="editModel.firstName" required />
+          </label>
+          <label class="form-field">
+            <span>Επώνυμο</span>
+            <input type="text" name="lastName" [(ngModel)]="editModel.lastName" required />
+          </label>
+          <label class="form-field">
+            <span>Email</span>
+            <input type="email" name="email" [(ngModel)]="editModel.email" placeholder="you@example.com" required />
+          </label>
+          <label class="form-field">
+            <span>Τηλέφωνο</span>
+            <input type="tel" name="phone" [(ngModel)]="editModel.phone" placeholder="6970000000" required />
+          </label>
+          <label class="form-field">
+            <span>Ηλικία</span>
+            <input
+              type="number"
+              name="age"
+              [(ngModel)]="editModel.age"
+              min="16"
+              max="120"
+              placeholder="21"
+            />
+          </label>
+
+          <ng-container *ngIf="isUniversityStudent">
+            <label class="form-field">
+              <span>Πανεπιστήμιο</span>
+              <select name="university" [(ngModel)]="editModel.university" required>
+                <option *ngFor="let university of universityOptions" [value]="university">
+                  {{ university }}
+                </option>
+              </select>
+            </label>
+            <label class="form-field">
+              <span>Τμήμα</span>
+              <select name="department" [(ngModel)]="editModel.department" required>
+                <option *ngFor="let department of departmentOptions" [value]="department">
+                  {{ department }}
+                </option>
+              </select>
+            </label>
+          </ng-container>
+
+          <ng-container *ngIf="isOwner">
+            <label class="form-field">
+              <span>Διεύθυνση</span>
+              <input type="text" name="address" [(ngModel)]="editModel.address" required />
+            </label>
+          </ng-container>
+        </div>
+
+        <p class="contact-hint">
+          Το email και το κινητό χρειάζονται για να επικοινωνούν τα μέλη μαζί σου.
+        </p>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Αποθήκευση</button>
+          <button type="button" class="btn-secondary" (click)="cancelEdit()">Ακύρωση</button>
+        </div>
+      </form>
+
+      <dl *ngIf="!isEditing">
+        <div>
+          <dt>Όνομα</dt>
+          <dd>{{ user.firstName }}</dd>
+        </div>
+        <div>
+          <dt>Επώνυμο</dt>
+          <dd>{{ user.lastName }}</dd>
+        </div>
+        <div>
+          <dt>Email</dt>
+          <dd>{{ email }}</dd>
+        </div>
+        <div>
+          <dt>Τηλέφωνο</dt>
+          <dd>{{ phone }}</dd>
+        </div>
+        <div>
+          <dt>Ηλικία</dt>
+          <dd>{{ displayAge }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section *ngIf="studentProfile" class="profile-card surface-card">
+      <h2>Στοιχεία φοίτησης</h2>
+      <dl>
+        <div>
+          <dt>Πανεπιστήμιο</dt>
+          <dd>{{ studentProfile.university }}</dd>
+        </div>
+        <div>
+          <dt>Τμήμα</dt>
+          <dd>{{ studentProfile.department }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section *ngIf="ownerProfile" class="profile-card surface-card">
+      <h2>Στοιχεία ιδιοκτήτη</h2>
+      <dl>
+        <div>
+          <dt>Διεύθυνση</dt>
+          <dd>{{ ownerProfile.address }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="profile-card surface-card" *ngIf="shouldShowListingsCard">
+      <div class="listings-header">
+        <h2>Οι αγγελίες μου</h2>
+        <p>Παρακολούθησε τι έχεις καταχωρήσει και κάνε γρήγορες ενέργειες σε μία οθόνη.</p>
+      </div>
+      <div *ngIf="listingsFeedback as alert" class="profile-feedback" [class.error]="alert.tone === 'error'">
+        {{ alert.text }}
+      </div>
+
+      <ng-container *ngIf="isOwner">
+        <div class="listings-group" *ngIf="ownerProperties.length; else ownerPropertiesEmpty">
+          <div class="listings-group__header">
+            <h3>Ακίνητα</h3>
+            <span class="counter">{{ ownerProperties.length }}</span>
+          </div>
+          <article
+            class="listing-card"
+            *ngFor="let property of ownerProperties; trackBy: trackByProperty"
+          >
+            <div class="listing-card__body">
+              <div class="listing-card__title">
+                <div class="listing-card__title-row">
+                  <h4>{{ property.title }}</h4>
+                  <span class="status-badge status-badge--hidden" *ngIf="isHidden(property)">
+                    Σε απόκρυψη
+                  </span>
+                </div>
+                <span>{{ property.location.city }}, {{ property.location.address }}</span>
+              </div>
+              <ul class="listing-card__meta">
+                <li>{{ property.price | number:'1.0-0' }} € / μήνα</li>
+                <li>{{ property.area }} τ.μ.</li>
+                <li>{{ property.rooms }} δωμάτια</li>
+                <li>{{ property.type }}</li>
+              </ul>
+              <p class="listing-card__timestamp">Ενημερώθηκε {{ property.createdAt | date:'d MMMM yyyy' }}</p>
+            </div>
+            <div class="listing-card__actions">
+              <button type="button" class="btn-secondary" (click)="viewProperty(property)">Προβολή</button>
+              <button type="button" class="btn-secondary" (click)="editProperty(property)">Επεξεργασία</button>
+              <button
+                type="button"
+                class="btn-secondary"
+                (click)="toggleVisibility(property)"
+                [disabled]="isVisibilityPending(property)"
+              >
+                {{ isHidden(property) ? 'Δημοσίευση' : 'Απόκρυψη' }}
+              </button>
+              <button type="button" class="btn-danger" (click)="deleteProperty(property)">Διαγραφή</button>
+            </div>
+          </article>
+        </div>
+        <ng-template #ownerPropertiesEmpty>
+          <p class="listings-empty">Δεν έχεις ακόμη καταχωρημένα ακίνητα.</p>
+        </ng-template>
+
+        <div class="listings-group" *ngIf="ownerHospitalityStays.length; else ownerHospitalityEmpty">
+          <div class="listings-group__header">
+            <h3>Προσωρινή διαμονή / Φιλοξενία</h3>
+            <span class="counter">{{ ownerHospitalityStays.length }}</span>
+          </div>
+          <article
+            class="listing-card"
+            *ngFor="let stay of ownerHospitalityStays; trackBy: trackByStay"
+          >
+            <div class="listing-card__body">
+              <div class="listing-card__title">
+                <div class="listing-card__title-row">
+                  <h4>{{ stay.title }}</h4>
+                  <span class="status-badge status-badge--hidden" *ngIf="isStayHidden(stay)">
+                    Σε απόκρυψη
+                  </span>
+                </div>
+                <span>{{ stay.location.city }}, {{ stay.location.address }}</span>
+              </div>
+              <ul class="listing-card__meta">
+                <li>{{ stay.costCategory === 'free' ? 'Δωρεάν φιλοξενία' : (stay.pricePerNight | number:'1.0-0') + ' € / βραδιά' }}</li>
+                <li>{{ stay.type }}</li>
+                <li>Ελάχιστες νύχτες: {{ stay.minNights }}</li>
+                <li *ngIf="stay.purpose === 'hospitality'">Δημιουργήθηκε από φιλοξενία</li>
+              </ul>
+              <p class="listing-card__timestamp">Ενημερώθηκε {{ stay.createdAt | date:'d MMMM yyyy' }}</p>
+            </div>
+            <div class="listing-card__actions">
+              <button type="button" class="btn-secondary" (click)="viewTemporaryStay(stay)">Προβολή</button>
+              <button type="button" class="btn-secondary" (click)="editTemporaryStay(stay)">Επεξεργασία</button>
+              <button
+                type="button"
+                class="btn-secondary"
+                (click)="toggleStayVisibility(stay)"
+                [disabled]="isStayVisibilityPending(stay)"
+              >
+                {{ isStayHidden(stay) ? 'Δημοσίευση' : 'Απόκρυψη' }}
+              </button>
+              <button type="button" class="btn-danger" (click)="deleteTemporaryStay(stay)">Αφαίρεση</button>
+            </div>
+          </article>
+        </div>
+        <ng-template #ownerHospitalityEmpty>
+          <p class="listings-empty">Δεν έχεις ακόμη προσωρινές διαμονές.</p>
+        </ng-template>
+      </ng-container>
+
+      <ng-container *ngIf="isMember">
+        <div class="listings-group" *ngIf="studentRoommateAds.length; else studentRoommatesEmpty">
+          <div class="listings-group__header">
+            <h3>Αγγελίες συγκάτοικου</h3>
+            <span class="counter">{{ studentRoommateAds.length }}</span>
+          </div>
+          <article
+            class="listing-card"
+            *ngFor="let ad of studentRoommateAds; trackBy: trackByRoommate"
+          >
+            <div class="listing-card__body">
+              <div class="listing-card__title">
+                <h4>{{ ad.title }}</h4>
+                <span>{{ ad.propertyLocation }}</span>
+              </div>
+              <ul class="listing-card__meta">
+                <li>{{ ad.monthlyRent | number:'1.0-0' }} € / μήνα</li>
+                <li>Διαθέσιμο από {{ ad.availableFrom | date:'d MMMM yyyy' }}</li>
+                <li *ngIf="ad.profile?.university as university">{{ university }}</li>
+              </ul>
+              <p class="listing-card__timestamp">Ενημερώθηκε {{ ad.createdAt | date:'d MMMM yyyy' }}</p>
+            </div>
+            <div class="listing-card__actions">
+              <button type="button" class="btn-secondary" (click)="viewRoommateAd(ad)">Προβολή</button>
+              <button type="button" class="btn-secondary" (click)="editRoommateAd(ad)">Επεξεργασία</button>
+              <button
+                type="button"
+                class="btn-secondary"
+                (click)="toggleRoommateVisibility(ad)"
+                [disabled]="isRoommateVisibilityPending(ad)"
+              >
+                {{ isRoommateHidden(ad) ? 'Δημοσίευση' : 'Απόκρυψη' }}
+              </button>
+              <button type="button" class="btn-danger" (click)="deleteRoommateAd(ad)">Διαγραφή</button>
+            </div>
+          </article>
+        </div>
+        <ng-template #studentRoommatesEmpty>
+          <p class="listings-empty">Δεν έχεις ενεργές αγγελίες συγκάτοικου αυτή τη στιγμή.</p>
+        </ng-template>
+      </ng-container>
+    </section>
+
+    <section class="actions-card surface-card">
+      <h2>Ενέργειες</h2>
+      <p>Επίλεξε την επόμενη κίνηση που σε ενδιαφέρει.</p>
+      <div class="actions-grid">
+        <article
+          class="action-item"
+          *ngFor="let action of actions"
+          [class.action-item--primary]="action.kind === 'primary'"
+        >
+          <h3>{{ action.label }}</h3>
+          <p>{{ action.description }}</p>
+          <button type="button" class="btn-primary" (click)="onNavigate(action.route)">
+            Μετάβαση
+          </button>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <ng-template #guestState>
+    <div class="layout-container profile-layout">
+      <div class="surface-card empty-state">
+        <h2>Δεν είσαι συνδεδεμένος</h2>
+        <p>Σύνδεση απαιτείται για να δεις το προφίλ σου.</p>
+        <button type="button" class="btn-primary" (click)="onNavigate('/auth/login')">
+          Μετάβαση στη σύνδεση
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</section>

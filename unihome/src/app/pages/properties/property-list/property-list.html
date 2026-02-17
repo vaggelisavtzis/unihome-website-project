@@ -1,0 +1,237 @@
+<section class="properties-page">
+  <div class="layout-container properties-layout">
+    <header class="properties-hero surface-card surface-card--interactive">
+      <div class="hero-copy">
+        <span class="badge">Ακίνητα</span>
+        <h1>Ανακάλυψε κατοικίες που ταιριάζουν στο ρυθμό σου</h1>
+        <p>
+          Περιηγήσου ως επισκέπτης, φιλτράρισε με βάση τις ανάγκες σου και πρόσθεσε αγαπημένα για να τα βρεις ξανά μετά τη σύνδεση.
+        </p>
+      </div>
+      <button
+        *ngIf="showPropertyCta"
+        type="button"
+        class="hero-action btn-secondary"
+        (click)="onCreateProperty()"
+      >
+        Καταχώρησε το ακίνητό σου
+      </button>
+    </header>
+
+    <section class="filters-card surface-card">
+      <form class="filters-grid" (ngSubmit)="applyFilters()">
+        <div class="filter-field">
+          <label for="searchQuery">Αναζήτηση</label>
+          <input
+            id="searchQuery"
+            type="text"
+            placeholder="Π.χ. γκαρσονιέρα στη Σάμο"
+            [(ngModel)]="formFilters.searchQuery"
+            name="searchQuery"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="type">Τύπος ακινήτου</label>
+          <select id="type" [(ngModel)]="formFilters.type" name="type">
+            <option value="">Όλα</option>
+            <option *ngFor="let type of propertyTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="maxPrice">Τιμή έως (€/μήνα)</label>
+          <input
+            id="maxPrice"
+            type="number"
+            min="0"
+            [(ngModel)]="formFilters.maxPrice"
+            name="maxPrice"
+            inputmode="numeric"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="minRooms">Ελάχιστα δωμάτια</label>
+          <select
+            id="minRooms"
+            [(ngModel)]="formFilters.minRooms"
+            name="minRooms"
+          >
+            <option [ngValue]="null">Όλα</option>
+            <option *ngFor="let count of roomCountOptions" [ngValue]="count">{{ count }}+</option>
+          </select>
+          <div class="field-hint">
+            {{ formFilters.minRooms ? (formFilters.minRooms + ' δωμάτια ελάχιστο') : 'Χωρίς περιορισμό δωματίων' }}
+          </div>
+        </div>
+
+        <div class="filter-field">
+          <label for="furnished">Επίπλωση</label>
+          <select id="furnished" [(ngModel)]="formFilters.furnished" name="furnished">
+            <option value="">Όλα</option>
+            <option value="yes">Επιπλωμένα</option>
+            <option value="no">Μη επιπλωμένα</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="damage">Κατάσταση</label>
+          <select id="damage" [(ngModel)]="formFilters.damage" name="damage">
+            <option value="">Όλες</option>
+            <option value="no">Χωρίς ζημιές</option>
+            <option value="yes">Χρειάζεται επισκευή</option>
+          </select>
+        </div>
+
+        <app-location-picker
+          class="filter-field"
+          label="Περιοχή"
+          placeholder="Καρλόβασι, Βαθύ, Πυθαγόρειο..."
+          [(value)]="formFilters.location"
+        ></app-location-picker>
+
+        <div class="filters-actions">
+          <button type="submit" class="btn-primary">Εφαρμογή</button>
+          <button type="button" class="btn-secondary" (click)="resetFilters()">Καθαρισμός</button>
+        </div>
+      </form>
+
+      <div class="filters-feedback" *ngIf="feedback as alert" [class.error]="alert.tone === 'error'">
+        {{ alert.text }}
+      </div>
+    </section>
+
+    <section class="map-card surface-card" *ngIf="visibleProperties.length">
+      <header class="map-card__header">
+        <h2>Χάρτης διαθέσιμων ακινήτων</h2>
+        <p>Πέρασε το ποντίκι πάνω από μία αγγελία ή πάτησε έναν δείκτη για περισσότερες λεπτομέρειες.</p>
+      </header>
+      <app-property-map
+        [properties]="visibleProperties"
+        [highlightPropertyId]="mapHighlightId"
+        (propertyFocus)="onMapPropertyFocus($event)"
+      ></app-property-map>
+    </section>
+
+    <section class="results-meta">
+      <div class="results-count">
+        {{ visibleProperties.length }} {{ visibleProperties.length === 1 ? 'αγγελία' : 'αγγελίες' }} κατοικίας
+      </div>
+      <div class="results-sort">
+        <label for="propertySort">Ταξινόμηση:</label>
+        <select
+          id="propertySort"
+          [(ngModel)]="selectedSort"
+          (ngModelChange)="onSortChange($event)"
+        >
+          <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+      </div>
+      <div class="results-note">
+        Τα στοιχεία επικοινωνίας κάθε αγγελίας εμφανίζονται μόνο σε συνδεδεμένους χρήστες για λόγους ασφάλειας.
+      </div>
+    </section>
+
+    <section class="properties-grid" *ngIf="visibleProperties.length; else emptyState">
+      <article
+        class="property-card surface-card surface-card--interactive"
+        *ngFor="let property of visibleProperties; trackBy: trackByProperty"
+        [class.is-highlighted]="mapHighlightId === property.id"
+        [attr.data-property-id]="property.id"
+        (mouseenter)="onCardHover(property)"
+        (focusin)="onCardHover(property)"
+        (mouseleave)="onCardHover(null)"
+        (focusout)="onCardHover(null)"
+      >
+        <div class="card-media">
+          <div class="media-carousel" *ngIf="property.images.length; else mediaFallback">
+            <figure
+              class="media-frame"
+              *ngFor="let image of property.images; trackBy: trackByImage"
+            >
+              <img [src]="image" [alt]="property.title" loading="lazy" />
+            </figure>
+          </div>
+          <ng-template #mediaFallback>
+            <div class="media-placeholder">Χωρίς εικόνα</div>
+          </ng-template>
+          <span class="media-count" *ngIf="property.images.length > 1">
+            {{ property.images.length }} φωτογραφίες
+          </span>
+          <button
+            type="button"
+            class="favorite-btn"
+            [class.active]="isFavorite(property.id)"
+            (click)="toggleFavorite(property.id)"
+            aria-label="{{ isFavorite(property.id) ? 'Αφαίρεση από αγαπημένα' : 'Προσθήκη στα αγαπημένα' }}"
+          >
+            <span>{{ isFavorite(property.id) ? '♥' : '♡' }}</span>
+          </button>
+        </div>
+
+        <div class="card-main">
+          <div class="main-header">
+            <span class="status-badge status-badge--hidden" *ngIf="isHidden(property)">
+              Σε απόκρυψη
+            </span>
+            <h2>{{ property.title }}</h2>
+          </div>
+          <p class="location">{{ property.location.city }}, {{ property.location.address }}</p>
+
+          <div class="meta-groups">
+            <ul class="property-meta">
+              <li>{{ property.area }} τ.μ.</li>
+              <li>{{ property.rooms }} δωμάτια</li>
+              <li>{{ property.type }}</li>
+              <li>{{ property.basics.furnished ? 'Επιπλωμένο' : 'Μη επιπλωμένο' }}</li>
+              <li>{{ property.basics.hasDamage ? 'Χρειάζεται επισκευή' : 'Χωρίς ζημιές' }}</li>
+            </ul>
+
+            <ul class="property-features" *ngIf="property.features.length">
+              <li *ngFor="let feature of property.features | slice:0:3">{{ feature }}</li>
+            </ul>
+          </div>
+
+          <div class="availability-banner" *ngIf="availabilitySummaryFor(property) as availability">
+            <span class="status" [class.blocked]="availability.status === 'blocked'">
+              {{ availability.status === 'blocked' ? 'Μη διαθέσιμο' : 'Διαθέσιμο' }}
+            </span>
+            <span class="detail" *ngIf="availability.status === 'blocked' && availability.availableFromLabel">
+              {{ availability.availableFromLabel }}
+            </span>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <div class="price-badge">{{ property.price | number:'1.0-0' }} € / μήνα</div>
+          <a [routerLink]="['/properties', property.id]" class="btn-secondary card-action-btn">Προβολή αγγελίας</a>
+          <button
+            type="button"
+            class="btn-primary card-action-btn"
+            [class.is-favorite]="isFavorite(property.id)"
+            (click)="toggleFavorite(property.id)"
+          >
+            {{ isFavorite(property.id) ? 'Αφαίρεση από αγαπημένα' : 'Αποθήκευση' }}
+          </button>
+          <button
+            type="button"
+            class="btn-danger card-action-btn"
+            *ngIf="canDelete(property)"
+            (click)="deleteProperty(property)"
+          >
+            Διαγραφή αγγελίας
+          </button>
+        </div>
+      </article>
+    </section>
+
+    <ng-template #emptyState>
+      <div class="empty-state surface-card">
+        <h3>Δεν βρέθηκαν ακίνητα με τα συγκεκριμένα κριτήρια.</h3>
+        <p>Δοκίμασε να προσαρμόσεις τα φίλτρα ή να καθαρίσεις την αναζήτηση.</p>
+        <button type="button" class="btn-secondary" (click)="resetFilters()">Επαναφορά φίλτρων</button>
+      </div>
+    </ng-template>
+  </div>
+</section>

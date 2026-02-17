@@ -1,0 +1,97 @@
+<section class="auth-shell">
+  <div class="auth-card register-card">
+  <h2>Δημιούργησε λογαριασμό μέλους</h2>
+  <p class="subtitle">Οργάνωσε την αναζήτηση σπιτιού, σώσε αγαπημένα και βρες τον ιδανικό συγκάτοικο.</p>
+
+    <form (ngSubmit)="onSubmit()" class="form-grid" novalidate>
+      <div class="form-feedback" *ngIf="errorMessage">{{ errorMessage }}</div>
+      <div class="form-feedback success" *ngIf="successMessage">{{ successMessage }}</div>
+      <div class="form-group">
+        <label for="firstName">Όνομα</label>
+        <input type="text" id="firstName" name="firstName" [(ngModel)]="formData.firstName" required>
+      </div>
+      <div class="form-group">
+        <label for="lastName">Επώνυμο</label>
+        <input type="text" id="lastName" name="lastName" [(ngModel)]="formData.lastName" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" [(ngModel)]="formData.email" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Κινητό</label>
+        <input type="tel" id="phone" name="phone" [(ngModel)]="formData.phone" placeholder="6970000000" required>
+      </div>
+      <div class="form-group checkbox-group">
+        <label class="checkbox-field">
+          <input type="checkbox" id="isStudent" name="isStudent" [(ngModel)]="formData.isStudent">
+          Είμαι φοιτητής/τρια
+        </label>
+      </div>
+      <div class="form-group">
+        <label for="age">Ηλικία</label>
+        <input
+          type="number"
+          id="age"
+          name="age"
+          [(ngModel)]="formData.age"
+          min="16"
+          max="120"
+          placeholder="20"
+        >
+      </div>
+      <ng-container *ngIf="formData.isStudent">
+        <div class="form-group">
+          <label for="university">Πανεπιστήμιο</label>
+          <select
+            id="university"
+            name="university"
+            [(ngModel)]="formData.university"
+            (change)="onUniversityChange()"
+            required
+          >
+            <option *ngFor="let university of universityOptions" [value]="university">
+              {{ university }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="department">Τμήμα</label>
+          <select
+            id="department"
+            name="department"
+            [(ngModel)]="formData.department"
+            required
+          >
+            <option *ngFor="let department of departmentOptions" [value]="department">
+              {{ department }}
+            </option>
+          </select>
+        </div>
+      </ng-container>
+      <div class="form-group">
+        <label for="password">Κωδικός</label>
+        <input type="password" id="password" name="password" [(ngModel)]="formData.password" required>
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Επιβεβαίωση Κωδικού</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="formData.confirmPassword" required>
+      </div>
+
+      <div class="actions-row">
+        <button type="submit" class="btn-primary" [disabled]="loading">
+          {{ loading ? 'Επεξεργασία...' : 'Ολοκλήρωση εγγραφής' }}
+        </button>
+        <button type="button" class="btn-secondary" routerLink="/auth/login">Έχω ήδη λογαριασμό</button>
+      </div>
+    </form>
+
+    <p class="support-text">
+      Φρόντισε να ενημερώνεις το email και το κινητό σου ώστε να μένεις σε επαφή με τα μέλη.
+    </p>
+
+    <p class="support-text">
+      Με την εγγραφή σου αποδέχεσαι τους <a href="#">όρους χρήσης</a> και την <a href="#">πολιτική απορρήτου</a>.
+    </p>
+  </div>
+</section>

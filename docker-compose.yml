@@ -1,0 +1,80 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: unihome-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: unihome
+      MYSQL_USER: unihome
+      MYSQL_PASSWORD: unihome
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./Unihome Backend/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql:ro
+      - ./Unihome Backend/src/main/resources/data.sql:/docker-entrypoint-initdb.d/2-data.sql:ro
+
+  backend:
+    build:
+      context: ./Unihome Backend
+      dockerfile: Dockerfile
+    image: unihome-backend:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/unihome?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: unihome
+      SPRING_DATASOURCE_PASSWORD: unihome
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_SQL_INIT_MODE: never
+      SPRING_MAIL_HOST: mailhog
+      SPRING_MAIL_PORT: 1025
+      SPRING_MAIL_USERNAME: ""
+      SPRING_MAIL_PASSWORD: ""
+      SPRING_MAIL_SMTP_AUTH: "false"
+      SPRING_MAIL_STARTTLS_ENABLE: "false"
+      UNIHOME_CONTACT_FROM: no-reply@unihome.local
+      UNIHOME_CONTACT_TO: contact.placeholder@example.com
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+    volumes:
+      - uploads-data:/app/uploads
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./unihome
+      dockerfile: Dockerfile
+    image: unihome-frontend:latest
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "4200:80"
+    restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: unihome-mailhog
+    ports:
+      - "8025:8025" # Web UI
+      - "1025:1025" # SMTP
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  uploads-data:

@@ -1,0 +1,49 @@
+<nav class="navbar">
+  
+  <div class="logo" (click)="goHome()">
+    <img src="/assets/logo.png" alt="Unihome Logo" class="navbar-logo" />
+  </div>
+
+  
+  <ul class="menu">
+    <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Αρχική</a></li>
+    <li>
+      <a
+        routerLink="/properties"
+        routerLinkActive="active"
+        (click)="onPropertiesLink($event)"
+      >
+        Ακίνητα
+      </a>
+    </li>
+    <li><a routerLink="/temporary" routerLinkActive="active">Προσωρινή Διαμονή</a></li>
+    <li><a routerLink="/roommates" routerLinkActive="active">Βρες Συγκάτοικο</a></li>
+    <li><a routerLink="/about" routerLinkActive="active">Σχετικά</a></li>
+    <li><a routerLink="/contact" routerLinkActive="active">Επικοινωνία</a></li>
+  </ul>
+
+  
+  <div class="actions">
+    
+    <div class="user-menu" (click)="toggleUserMenu()">
+      <i class="fa-regular fa-user"></i>
+
+      <div class="dropdown" *ngIf="showUserMenu">
+        <ng-container *ngIf="!isLoggedIn; else loggedInMenu">
+          <a routerLink="/auth/login">Σύνδεση</a>
+          <a routerLink="/auth/student-register">Εγγραφή Μέλους</a>
+          <a routerLink="/auth/owner-register">Εγγραφή Ιδιοκτήτη</a>
+        </ng-container>
+
+        <ng-template #loggedInMenu>
+          <button type="button" class="dropdown-header" (click)="onProfile()">
+            Συνδεδεμένος ως {{ displayName }}
+          </button>
+          <a (click)="onProfile()">Προβολή προφίλ</a>
+          <a (click)="onFavorites()">Αγαπημένα μου</a>
+          <a (click)="logout()">Αποσύνδεση</a>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</nav>

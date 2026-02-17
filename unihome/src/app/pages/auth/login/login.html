@@ -1,0 +1,56 @@
+<section class="auth-shell">
+  <div class="auth-card login-card">
+    <h2>Καλώς ήρθες ξανά!</h2>
+  <p class="subtitle">Συνδέσου για να συνεχίσεις την αναζήτηση στέγης.</p>
+
+    <form (ngSubmit)="onSubmit()" class="form-grid" novalidate>
+      <div class="form-feedback" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+      <div class="form-feedback success" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+
+      <div class="form-group">
+        <label [attr.for]="identifierFieldId">{{ identifierLabel }}</label>
+        <input
+          [attr.type]="identifierInputType"
+          [id]="identifierFieldId"
+          name="identifier"
+          [(ngModel)]="identifier"
+          [placeholder]="identifierPlaceholder"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Κωδικός</label>
+        <input type="password" id="password" name="password" [(ngModel)]="password" required>
+      </div>
+
+      <div class="form-group">
+        <label for="userType">Τύπος Χρήστη</label>
+        <select id="userType" [(ngModel)]="userType" name="userType">
+          <option value="student">Μέλος</option>
+          <option value="owner">Ιδιοκτήτης</option>
+        </select>
+      </div>
+
+      <div class="actions-row">
+        <button type="submit" class="btn-primary" [disabled]="loading">
+          {{ loading ? 'Επεξεργασία...' : 'Σύνδεση' }}
+        </button>
+        <button type="button" class="btn-secondary" routerLink="/">Επιστροφή στην αρχική</button>
+      </div>
+    </form>
+
+    <div class="support-text register-link">
+      <span>Δεν έχεις λογαριασμό;</span>
+      <div class="link-row">
+  <a routerLink="/auth/student-register">Εγγραφή Μέλους</a>
+        <span class="separator">•</span>
+        <a routerLink="/auth/owner-register">Εγγραφή ως Ιδιοκτήτης</a>
+      </div>
+    </div>
+  </div>
+</section>

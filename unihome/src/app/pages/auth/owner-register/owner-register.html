@@ -1,0 +1,67 @@
+<section class="auth-shell">
+  <div class="auth-card register-card">
+    <h2>Καταχώρησε λογαριασμό ιδιοκτήτη</h2>
+  <p class="subtitle">Διαχειρίσου τα ακίνητά σου, απάντησε σε αιτήματα ενδιαφερόμενων μελών και κράτησε οργανωμένες τις αγγελίες σου.</p>
+
+    <form (ngSubmit)="onSubmit()" class="form-grid" novalidate>
+      <div class="form-feedback" *ngIf="errorMessage">{{ errorMessage }}</div>
+      <div class="form-feedback success" *ngIf="successMessage">{{ successMessage }}</div>
+
+      <div class="form-group">
+        <label for="firstName">Όνομα</label>
+        <input type="text" id="firstName" name="firstName" [(ngModel)]="formData.firstName" required>
+      </div>
+      <div class="form-group">
+        <label for="lastName">Επώνυμο</label>
+        <input type="text" id="lastName" name="lastName" [(ngModel)]="formData.lastName" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" [(ngModel)]="formData.email" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Κινητό</label>
+        <input type="tel" id="phone" name="phone" [(ngModel)]="formData.phone" placeholder="6970000000" required>
+      </div>
+      <div class="form-group">
+        <label for="age">Ηλικία</label>
+        <input
+          type="number"
+          id="age"
+          name="age"
+          min="18"
+          max="100"
+          [(ngModel)]="formData.age"
+          required
+        >
+      </div>
+      <div class="form-group">
+        <label for="address">Έδρα/Διεύθυνση</label>
+        <input type="text" id="address" name="address" [(ngModel)]="formData.address" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Κωδικός</label>
+        <input type="password" id="password" name="password" [(ngModel)]="formData.password" required>
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Επιβεβαίωση κωδικού</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="formData.confirmPassword" required>
+      </div>
+
+      <div class="actions-row">
+        <button type="submit" class="btn-primary" [disabled]="loading">
+          {{ loading ? 'Επεξεργασία...' : 'Ολοκλήρωση εγγραφής' }}
+        </button>
+        <button type="button" class="btn-secondary" routerLink="/auth/login">Σύνδεση</button>
+      </div>
+    </form>
+
+    <p class="support-text">
+      Διατήρησε ενημερωμένα το email και το κινητό σου για να σε βρίσκουν άμεσα τα μέλη.
+    </p>
+
+    <p class="support-text">
+      Με την εγγραφή σου αποδέχεσαι τους <a href="#">όρους χρήσης</a> και την <a href="#">πολιτική απορρήτου</a>.
+    </p>
+  </div>
+</section>

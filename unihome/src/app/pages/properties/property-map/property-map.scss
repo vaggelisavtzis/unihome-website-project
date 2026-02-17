@@ -1,0 +1,68 @@
+.property-map {
+  width: 100%;
+
+  .map-container {
+    position: relative;
+    min-height: 400px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 24px rgba(14, 30, 37, 0.08);
+    border: 1px solid rgba(15, 118, 110, 0.1);
+  }
+
+  .map-canvas {
+    height: 100%;
+    min-height: 400px;
+    width: 100%;
+  }
+
+  .map-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(15, 118, 110, 0.08), rgba(255, 255, 255, 0.92));
+    color: #0f766e;
+    gap: 8px;
+    text-align: center;
+    font-size: 0.95rem;
+    padding: 0 24px;
+  }
+}
+
+.property-popup {
+  max-width: 240px;
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    color: #0f172a;
+  }
+
+  p {
+    margin: 0 0 6px;
+    font-size: 0.85rem;
+    color: #1f2937;
+  }
+
+  .price {
+    font-weight: 600;
+    color: #0f766e;
+    margin-bottom: 8px;
+  }
+
+  .popup-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: #0f766e;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .popup-link:hover,
+  .popup-link:focus {
+    text-decoration: underline;
+  }
+}

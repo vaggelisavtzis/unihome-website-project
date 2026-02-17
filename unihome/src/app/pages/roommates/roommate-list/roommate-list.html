@@ -1,0 +1,292 @@
+<section class="roommates-page">
+  <div class="layout-container roommates-layout">
+    <header class="roommates-hero surface-card surface-card--interactive">
+      <div class="hero-copy">
+        <span class="badge">Συγκάτοικοι</span>
+        <h1>Βρες τον ιδανικό συγκάτοικο μέσα από πραγματικά προφίλ μελών</h1>
+        <p>
+          Περιηγήσου σε αγγελίες μελών της κοινότητας, γνώρισε τον τρόπο ζωής τους και συνδέσου για να δεις τα πλήρη στοιχεία επικοινωνίας.
+        </p>
+      </div>
+      <button
+        *ngIf="showRoommateCta"
+        type="button"
+        class="hero-action btn-secondary"
+        (click)="onPostRoommate()"
+      >
+        Καταχώρησε τη δική σου αγγελία
+      </button>
+    </header>
+
+    <section class="filters-card surface-card">
+      <form class="filters-grid" (ngSubmit)="applyFilters()">
+        <div class="filter-field">
+          <label for="searchQuery">Αναζήτηση</label>
+          <input
+            id="searchQuery"
+            type="search"
+            placeholder="Όνομα, περιγραφή, ενδιαφέροντα..."
+            [(ngModel)]="filters.searchQuery"
+            name="searchQuery"
+            (ngModelChange)="applyFilters()"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="university">Πανεπιστήμιο</label>
+          <select
+            id="university"
+            [(ngModel)]="filters.university"
+            name="university"
+            (ngModelChange)="applyFilters()"
+          >
+            <option value="">Όλα</option>
+            <option *ngFor="let university of universities" [value]="university">{{ university }}</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="maxRent">Μίσθωμα έως (€/μήνα)</label>
+          <input
+            id="maxRent"
+            type="number"
+            min="0"
+            [(ngModel)]="filters.maxRent"
+            name="maxRent"
+            (ngModelChange)="applyFilters()"
+            inputmode="numeric"
+          />
+        </div>
+
+        <app-location-picker
+          class="filter-field"
+          label="Περιοχή"
+          placeholder="Καρλόβασι, Βαθύ, Πυθαγόρειο..."
+          [(value)]="filters.location"
+          (valueChange)="applyFilters()"
+        ></app-location-picker>
+
+        <div class="filter-field">
+          <label for="lifestyle">Στυλ διαβίωσης</label>
+          <select
+            id="lifestyle"
+            [(ngModel)]="filters.lifestyle"
+            name="lifestyle"
+            (ngModelChange)="applyFilters()"
+          >
+            <option value="">Όλα</option>
+            <option *ngFor="let lifestyle of lifestyleOptions" [value]="lifestyle">{{ lifestyle }}</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="gender">Φύλο προφίλ</label>
+          <select
+            id="gender"
+            name="gender"
+            [(ngModel)]="filters.gender"
+            (ngModelChange)="applyFilters()"
+          >
+            <option *ngFor="let option of genderOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="mode">Τύπος αγγελίας</label>
+          <select
+            id="mode"
+            name="mode"
+            [(ngModel)]="filters.mode"
+            (ngModelChange)="applyFilters()"
+          >
+            <option *ngFor="let option of modeFilterOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-field age-range">
+          <label for="ageRange">Ηλικιακό φάσμα</label>
+          <div class="range-wrapper">
+            <div class="range-display" id="ageRange">
+              {{ minAgeControl }} - {{ maxAgeControl }} ετών
+            </div>
+            <div
+              class="slider-track"
+              [style.background]="ageRangeBackground"
+            >
+              <input
+                type="range"
+                [attr.min]="ageSliderMin"
+                [attr.max]="ageSliderMax"
+                step="1"
+                name="minAgeControl"
+                class="age-slider age-slider--min"
+                [(ngModel)]="minAgeControl"
+                (ngModelChange)="onAgeSliderChange()"
+                aria-label="Ελάχιστη ηλικία"
+              />
+              <input
+                type="range"
+                [attr.min]="ageSliderMin"
+                [attr.max]="ageSliderMax"
+                step="1"
+                name="maxAgeControl"
+                class="age-slider age-slider--max"
+                [(ngModel)]="maxAgeControl"
+                (ngModelChange)="onAgeSliderChange()"
+                aria-label="Μέγιστη ηλικία"
+              />
+            </div>
+          </div>
+          <div class="age-controls">
+            <button type="button" class="btn-secondary age-reset-btn" (click)="clearAgeRange()">
+              Καθαρισμός ηλικίας
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-field">
+          <label for="minRating">Ελάχιστη αξιολόγηση</label>
+          <select
+            id="minRating"
+            name="minRating"
+            [(ngModel)]="filters.minRating"
+            (ngModelChange)="applyFilters()"
+          >
+            <option *ngFor="let option of ratingOptions" [ngValue]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+
+        <div class="filters-actions">
+          <button type="submit" class="btn-primary">Εφαρμογή</button>
+          <button type="button" class="btn-secondary" (click)="resetFilters()">Καθαρισμός</button>
+        </div>
+      </form>
+    </section>
+
+    <div class="filters-feedback" *ngIf="feedback as alert" [class.error]="alert.tone === 'error'">
+      {{ alert.text }}
+    </div>
+
+    <section class="results-meta">
+      <div class="results-count">
+        {{ visibleRoommates.length }} {{ visibleRoommates.length === 1 ? 'αγγελία' : 'αγγελίες' }} συγκάτοικου
+      </div>
+      <div class="results-sort">
+        <label for="roommateSort">Ταξινόμηση:</label>
+        <select
+          id="roommateSort"
+          [(ngModel)]="selectedSort"
+          (ngModelChange)="onSortChange($event)"
+        >
+          <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+      </div>
+      <p class="results-note">
+  Τα στοιχεία επικοινωνίας εμφανίζονται μόνο σε συνδεδεμένα μέλη για μεγαλύτερη ασφάλεια.
+      </p>
+    </section>
+
+    <section class="roommates-grid" *ngIf="visibleRoommates.length; else emptyState">
+      <article
+        class="roommate-card surface-card surface-card--interactive"
+        *ngFor="let ad of visibleRoommates; trackBy: trackByRoommate"
+      >
+        <div class="card-media">
+          <ng-container *ngIf="avatarFor(ad) as avatar; else avatarPlaceholder">
+            <img [src]="avatar" [alt]="ad.profile?.name || ad.title" />
+          </ng-container>
+          <ng-template #avatarPlaceholder>
+            <div class="avatar-placeholder">{{ initialsFor(ad) }}</div>
+          </ng-template>
+          <div class="availability">
+            <span class="date">Από {{ formatAvailableFrom(ad.availableFrom) }}</span>
+            <span class="hint">{{ availabilityHint(ad.availableFrom) }}</span>
+          </div>
+        </div>
+
+        <div class="card-content">
+          <div class="card-body">
+            <div class="card-heading">
+              <span class="mode-badge" [ngClass]="modeBadgeClass(ad)">
+                {{ modeBadgeLabel(ad) }}
+              </span>
+              <div class="profile-line">
+                <h2>{{ ad.profile?.name || ad.title }}</h2>
+                <span class="age" *ngIf="ad.profile?.age">{{ ad.profile?.age }} ετών</span>
+              </div>
+              <div class="rating" *ngIf="ad.ratingCount > 0">
+                <span class="star" aria-hidden="true">&#9733;</span>
+                <span class="value">{{ ad.averageRating | number: '1.1-1' }}</span>
+                <span class="count">
+                  ({{ ad.ratingCount }} {{ ad.ratingCount === 1 ? 'κριτική' : 'κριτικές' }})
+                </span>
+              </div>
+              <div class="university" *ngIf="ad.profile?.university">
+                {{ ad.profile?.university }}<span *ngIf="ad.profile?.department"> · {{ ad.profile?.department }}</span>
+              </div>
+              <div class="location" *ngIf="ad.location?.city">
+                {{ ad.location?.city }}<span *ngIf="ad.location?.area"> · {{ ad.location?.area }}</span>
+              </div>
+              <p class="rent">{{ formatRent(ad.monthlyRent) }}</p>
+            </div>
+
+            <p class="description">
+              {{ ad.description }}
+            </p>
+
+            <ul class="tags" *ngIf="ad.lifestyle?.length">
+              <li *ngFor="let tag of ad.lifestyle | slice:0:4">{{ tag }}</li>
+            </ul>
+
+            <ul class="highlights" *ngIf="ad.preferences.length">
+              <li *ngFor="let pref of ad.preferences | slice:0:3">{{ pref }}</li>
+            </ul>
+          </div>
+
+          <div class="card-footer">
+            <div class="contact" *ngIf="isLoggedIn && ad.contact; else loginPrompt">
+              <span class="contact-name">{{ ad.contact.name }}</span>
+              <a *ngIf="ad.contact.phone" [href]="'tel:' + ad.contact.phone">Τηλ: {{ ad.contact.phone }}</a>
+              <a *ngIf="ad.contact.email" [href]="'mailto:' + ad.contact.email">Email: {{ ad.contact.email }}</a>
+            </div>
+            <ng-template #loginPrompt>
+              <p class="login-required">
+                Συνδέσου ως μέλος για να δεις τα στοιχεία επικοινωνίας και να στείλεις μήνυμα.
+              </p>
+            </ng-template>
+
+            <div class="card-actions">
+              <a [routerLink]="['/roommates', ad.id]" class="btn-secondary">Προβολή αγγελίας</a>
+              <button
+                *ngIf="showRoommateCta"
+                type="button"
+                class="btn-primary"
+                (click)="onPostRoommate()"
+              >
+                Δημιούργησε αγγελία
+              </button>
+              <button
+                type="button"
+                class="btn-danger"
+                *ngIf="canDelete(ad)"
+                (click)="deleteAd(ad)"
+              >
+                Διαγραφή αγγελίας
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <ng-template #emptyState>
+      <div class="empty-state surface-card">
+        <h3>Δεν βρέθηκαν αγγελίες με αυτά τα κριτήρια.</h3>
+        <p>Δοκίμασε να αλλάξεις τα φίλτρα ή επανάφερε την αναζήτηση.</p>
+        <button type="button" class="btn-secondary" (click)="resetFilters()">Επαναφορά φίλτρων</button>
+      </div>
+    </ng-template>
+  </div>
+</section>

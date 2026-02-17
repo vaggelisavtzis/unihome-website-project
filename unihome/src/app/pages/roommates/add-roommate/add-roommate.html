@@ -1,0 +1,469 @@
+<section class="roommate-form">
+  <div class="layout-container">
+    <header class="form-header">
+      <span class="badge">{{ badgeLabel }}</span>
+      <h1>{{ heading }}</h1>
+      <p>
+  Συμπλήρωσε τα στοιχεία που θα βοηθήσουν έναν υποψήφιο συγκάτοικο να αποφασίσει αν ταιριάζετε. Όλες οι πληροφορίες είναι
+        επεξεργάσιμες πριν τη δημοσίευση.
+      </p>
+    </header>
+
+    <form class="form-shell" (ngSubmit)="onSubmit()" novalidate>
+      <div class="alert alert-error" *ngIf="submissionError">{{ submissionError }}</div>
+      <div class="alert alert-success" *ngIf="submissionSuccess">{{ submissionSuccess }}</div>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Βασικές πληροφορίες αγγελίας</h2>
+          <p>Ο τίτλος, η περιγραφή και τα οικονομικά στοιχεία εμφανίζονται πρώτα στα αποτελέσματα.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="title">Τίτλος αγγελίας</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            [(ngModel)]="form.title"
+            (ngModelChange)="onTitleChange($event)"
+            required
+            placeholder="π.χ. Μαρία αναζητά ήσυχη συγκάτοικο στο Καρλόβασι"
+          />
+        </div>
+
+        <div class="form-group form-group--full">
+          <label>Τύπος αγγελίας</label>
+          <div class="mode-options">
+            <label
+              class="mode-option"
+              *ngFor="let option of adModeOptions; trackBy: trackByMode"
+            >
+              <input
+                type="radio"
+                name="mode"
+                [value]="option.value"
+                [(ngModel)]="form.mode"
+                (change)="onModeChange()"
+              />
+              <span class="mode-option__title">{{ option.title }}</span>
+              <span class="mode-option__description">{{ option.description }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="form-group">
+            <label for="monthlyRent">Μίσθωμα (€ / μήνα)</label>
+            <input
+              type="number"
+              id="monthlyRent"
+              name="monthlyRent"
+              [(ngModel)]="form.monthlyRent"
+              required
+              min="0"
+              inputmode="decimal"
+            />
+          </div>
+          <div class="form-group">
+            <label for="availableFrom">Διαθέσιμο από</label>
+            <input
+              type="date"
+              id="availableFrom"
+              name="availableFrom"
+              [(ngModel)]="form.availableFrom"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="propertyLocation">Περιοχή αγγελίας</label>
+            <input
+              type="text"
+              id="propertyLocation"
+              name="propertyLocation"
+              [(ngModel)]="form.propertyLocation"
+              (ngModelChange)="onLocationChange()"
+              placeholder="π.χ. Σάμος, Καρλόβασι"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Προσωπικό προφίλ</h2>
+          <p>Τα στοιχεία αυτά εμφανίζονται στη σελίδα της αγγελίας και βοηθούν στη δημιουργία εμπιστοσύνης.</p>
+        </div>
+
+        <div class="field-grid">
+          <div class="form-group">
+            <label for="profileName">Όνομα</label>
+            <input
+              type="text"
+              id="profileName"
+              name="profileName"
+              [(ngModel)]="form.profile.name"
+              (ngModelChange)="onProfileNameChange()"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="profileAge">Ηλικία</label>
+            <input
+              type="number"
+              id="profileAge"
+              name="profileAge"
+              [(ngModel)]="form.profile.age"
+              inputmode="numeric"
+              min="16"
+              max="120"
+            />
+          </div>
+          <div class="form-group">
+            <label for="profileGender">Φύλο</label>
+            <select id="profileGender" name="profileGender" [(ngModel)]="form.profile.gender">
+              <option value="">-</option>
+              <option *ngFor="let option of genderOptions; trackBy: trackByValue" [value]="option">{{ option }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="profileUniversity">Πανεπιστήμιο</label>
+            <select
+              id="profileUniversity"
+              name="profileUniversity"
+              [(ngModel)]="form.profile.university"
+              (change)="onUniversityChange()"
+            >
+              <option *ngFor="let uni of universityOptions; trackBy: trackByValue" [value]="uni">
+                {{ uni }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="profileDepartment">Τμήμα</label>
+            <select
+              id="profileDepartment"
+              name="profileDepartment"
+              [(ngModel)]="form.profile.department"
+            >
+              <option *ngFor="let department of departmentOptions; trackBy: trackByValue" [value]="department">
+                {{ department }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="profileSemester">Εξάμηνο</label>
+            <input type="text" id="profileSemester" name="profileSemester" [(ngModel)]="form.profile.semester" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Περιγραφή αγγελίας</label>
+          <textarea
+            id="description"
+            name="description"
+            rows="5"
+            required
+            [(ngModel)]="form.description"
+            placeholder="Περιέγραψε τον χώρο, το πρόγραμμα σου και τι αναζητάς από έναν συγκάτοικο."
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="profileBio">Προσωπικό bio</label>
+          <textarea
+            id="profileBio"
+            name="profileBio"
+            rows="3"
+            [(ngModel)]="form.bio"
+            placeholder="Λίγα λόγια για σένα πέρα από την αγγελία..."
+          ></textarea>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Τοποθεσία & πρόσβαση</h2>
+          <p>Οι λεπτομέρειες αυτές βοηθούν τον ενδιαφερόμενο να εκτιμήσει τη μετακίνησή του.</p>
+        </div>
+        <div class="field-grid">
+          <div class="form-group">
+            <label for="locationCity">Πόλη / χωριό</label>
+            <input
+              type="text"
+              id="locationCity"
+              name="locationCity"
+              [(ngModel)]="form.locationCity"
+              (ngModelChange)="onLocationChange()"
+            />
+          </div>
+          <div class="form-group">
+            <label for="locationArea">Περιοχή / γειτονιά</label>
+            <input type="text" id="locationArea" name="locationArea" [(ngModel)]="form.locationArea" />
+          </div>
+          <div class="form-group">
+            <label for="locationProximity">Χρόνος / απόσταση έως campus</label>
+            <input
+              type="text"
+              id="locationProximity"
+              name="locationProximity"
+              [(ngModel)]="form.locationProximity"
+              placeholder="π.χ. 5 λεπτά με τα πόδια"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Στυλ διαβίωσης & προτιμήσεις</h2>
+          <p>Επίλεξε τι χαρακτηρίζει την καθημερινότητά σου και τι θα εκτιμούσες από έναν συγκάτοικο.</p>
+        </div>
+
+        <div class="selection-grid">
+          <article class="selection-group">
+            <h3>Στυλ διαβίωσης</h3>
+            <p>Τι περιγράφει καλύτερα τη ρουτίνα σου;</p>
+            <div class="selection-options">
+              <label
+                class="option"
+                *ngFor="let option of lifestyleOptions; trackBy: trackByValue"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="selectedLifestyle.includes(option)"
+                  (change)="toggleSelection('lifestyle', option, $event.target.checked)"
+                />
+                <span>{{ option }}</span>
+              </label>
+            </div>
+            <div class="custom-entry">
+              <input
+                type="text"
+                name="customLifestyle"
+                [(ngModel)]="customInputs.lifestyle"
+                placeholder="Πρόσθεσε λέξεις-κλειδιά χωρισμένες με κόμμα"
+              />
+              <button type="button" class="btn-chip" (click)="addCustomValue('lifestyle')">Προσθήκη</button>
+            </div>
+            <ul class="selected-chips" *ngIf="selectedLifestyle.length">
+              <li *ngFor="let value of selectedLifestyle; trackBy: trackByValue">
+                {{ value }}
+                <button type="button" (click)="removeValue('lifestyle', value)" aria-label="Αφαίρεση">&times;</button>
+              </li>
+            </ul>
+          </article>
+
+          <article class="selection-group">
+            <h3>Τι εκτιμάς στον συγκάτοικο</h3>
+            <p>Ενημέρωσε τον ενδιαφερόμενο για τις βασικές σου προτεραιότητες.</p>
+            <div class="selection-options">
+              <label
+                class="option"
+                *ngFor="let option of preferenceOptions; trackBy: trackByValue"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="selectedPreferences.includes(option)"
+                  (change)="toggleSelection('preferences', option, $event.target.checked)"
+                />
+                <span>{{ option }}</span>
+              </label>
+            </div>
+            <div class="custom-entry">
+              <input
+                type="text"
+                name="customPreferences"
+                [(ngModel)]="customInputs.preferences"
+                placeholder="Πρόσθεσε επιπλέον προτιμήσεις"
+              />
+              <button type="button" class="btn-chip" (click)="addCustomValue('preferences')">Προσθήκη</button>
+            </div>
+            <ul class="selected-chips" *ngIf="selectedPreferences.length">
+              <li *ngFor="let value of selectedPreferences; trackBy: trackByValue">
+                {{ value }}
+                <button type="button" (click)="removeValue('preferences', value)" aria-label="Αφαίρεση">&times;</button>
+              </li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="selection-grid">
+          <article class="selection-group">
+            <h3>Χαρακτηριστικά σπιτιού</h3>
+            <p>Δείξε τι προσφέρει ο χώρος που μοιράζεσαι.</p>
+            <div class="selection-options">
+              <label class="option" *ngFor="let option of featureOptions; trackBy: trackByValue">
+                <input
+                  type="checkbox"
+                  [checked]="selectedFeatures.includes(option)"
+                  (change)="toggleSelection('features', option, $event.target.checked)"
+                />
+                <span>{{ option }}</span>
+              </label>
+            </div>
+            <div class="custom-entry">
+              <input
+                type="text"
+                name="customFeatures"
+                [(ngModel)]="customInputs.features"
+                placeholder="Άλλες παροχές του χώρου"
+              />
+              <button type="button" class="btn-chip" (click)="addCustomValue('features')">Προσθήκη</button>
+            </div>
+            <ul class="selected-chips" *ngIf="selectedFeatures.length">
+              <li *ngFor="let value of selectedFeatures; trackBy: trackByValue">
+                {{ value }}
+                <button type="button" (click)="removeValue('features', value)" aria-label="Αφαίρεση">&times;</button>
+              </li>
+            </ul>
+          </article>
+
+          <article class="selection-group">
+            <h3>Παροχές</h3>
+            <p>Ποιες διευκολύνσεις είναι διαθέσιμες;</p>
+            <div class="selection-options">
+              <label class="option" *ngFor="let option of amenityOptions; trackBy: trackByValue">
+                <input
+                  type="checkbox"
+                  [checked]="selectedAmenities.includes(option)"
+                  (change)="toggleSelection('amenities', option, $event.target.checked)"
+                />
+                <span>{{ option }}</span>
+              </label>
+            </div>
+            <div class="custom-entry">
+              <input
+                type="text"
+                name="customAmenities"
+                [(ngModel)]="customInputs.amenities"
+                placeholder="Πρόσθεσε άλλες παροχές"
+              />
+              <button type="button" class="btn-chip" (click)="addCustomValue('amenities')">Προσθήκη</button>
+            </div>
+            <ul class="selected-chips" *ngIf="selectedAmenities.length">
+              <li *ngFor="let value of selectedAmenities; trackBy: trackByValue">
+                {{ value }}
+                <button type="button" (click)="removeValue('amenities', value)" aria-label="Αφαίρεση">&times;</button>
+              </li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Ενδιαφέροντα & καθημερινές συνήθειες</h2>
+          <p>Χρησιμοποίησε κόμματα ή αλλαγές γραμμής για να διαχωρίσεις τις λέξεις-κλειδιά.</p>
+        </div>
+        <div class="field-grid">
+          <div class="form-group">
+            <label for="interestsInput">Ενδιαφέροντα</label>
+            <textarea
+              id="interestsInput"
+              name="interestsInput"
+              rows="3"
+              [(ngModel)]="form.interestsInput"
+              placeholder="π.χ. Πεζοπορία, Μαγείρεμα, Board games"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label for="habitsInput">Καθημερινές συνήθειες</label>
+            <textarea
+              id="habitsInput"
+              name="habitsInput"
+              rows="3"
+              [(ngModel)]="form.habitsInput"
+              placeholder="π.χ. Δεν καπνίζω, Ξυπνάω νωρίς"
+            ></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Φωτογραφίες</h2>
+          <p>Ανέβασε καθαρές εικόνες απευθείας από τον υπολογιστή σου.</p>
+        </div>
+        <div class="current-images" *ngIf="existingImages.length">
+          <h3>Υπάρχουσες φωτογραφίες</h3>
+          <ul class="current-images__list">
+            <li *ngFor="let url of existingImages; trackBy: trackByImageUrl">
+              <span class="current-images__url">{{ url }}</span>
+              <button type="button" class="btn-chip" (click)="removeExistingImage(url)">Αφαίρεση</button>
+            </li>
+          </ul>
+        </div>
+        <div class="form-group file-input">
+          <label for="imagesUpload">Επιλογή φωτογραφιών</label>
+          <input
+            type="file"
+            id="imagesUpload"
+            name="imagesUpload"
+            multiple
+            accept="image/*"
+            (change)="onFileSelect($event)"
+          />
+          <p class="hint">Μπορείς να προσθέσεις έως 10 εικόνες.</p>
+        </div>
+        <div class="alert alert-error" *ngIf="imageError">{{ imageError }}</div>
+        <ul class="selected-images" *ngIf="selectedFiles.length">
+          <li *ngFor="let file of selectedFiles; trackBy: trackBySelectedFile">
+            <span>{{ file.name }}</span>
+            <button type="button" class="btn-chip btn-chip--danger" (click)="removeSelectedFile(file)">Αφαίρεση</button>
+          </li>
+        </ul>
+      </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Στοιχεία επικοινωνίας</h2>
+          <p>Εμφανίζονται μόνο σε συνδεδεμένα μέλη.</p>
+        </div>
+
+        <div class="field-grid">
+          <div class="form-group">
+            <label for="contactName">Όνομα επαφής</label>
+            <input type="text" id="contactName" name="contactName" [(ngModel)]="contact.name" />
+          </div>
+          <div class="form-group">
+            <label for="contactPhone">Τηλέφωνο</label>
+            <input type="tel" id="contactPhone" name="contactPhone" [(ngModel)]="contact.phone" readonly />
+          </div>
+          <div class="form-group">
+            <label for="contactEmail">Email</label>
+            <input type="email" id="contactEmail" name="contactEmail" [(ngModel)]="contact.email" readonly />
+          </div>
+          <div class="form-group">
+            <label for="contactInstagram">Instagram (προαιρετικό)</label>
+            <input
+              type="url"
+              id="contactInstagram"
+              name="contactInstagram"
+              [(ngModel)]="contact.instagram"
+              placeholder="https://instagram.com/username"
+            />
+          </div>
+          <div class="form-group">
+            <label for="contactFacebook">Facebook (προαιρετικό)</label>
+            <input
+              type="url"
+              id="contactFacebook"
+              name="contactFacebook"
+              [(ngModel)]="contact.facebook"
+              placeholder="https://facebook.com/username"
+            />
+          </div>
+        </div>
+        <p class="contact-hint">Το email και το κινητό συμπληρώνονται αυτόματα από το προφίλ σου.</p>
+      </section>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" [routerLink]="['/roommates']">Ακύρωση</button>
+        <button type="submit" class="btn-primary" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Αποθήκευση...' : submitLabel }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

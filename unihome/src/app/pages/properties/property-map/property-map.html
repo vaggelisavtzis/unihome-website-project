@@ -1,0 +1,9 @@
+<section class="property-map">
+  <div class="map-container">
+    <div #mapRoot class="map-canvas" role="img" aria-label="Χάρτης διαθέσιμων ακινήτων"></div>
+    <div class="map-overlay" *ngIf="isReady && !hasMarkers">
+      <p>Δεν υπάρχουν ακόμη ακίνητα με διαθέσιμη τοποθεσία.</p>
+      <span>Όταν προστεθούν συντεταγμένες, θα εμφανιστούν αυτόματα εδώ.</span>
+    </div>
+  </div>
+</section>

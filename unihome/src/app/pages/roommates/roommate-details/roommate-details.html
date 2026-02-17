@@ -1,0 +1,273 @@
+<section class="roommate-details-page" *ngIf="roommate && !notFound; else notFoundState">
+  <div class="layout-container roommate-details-layout">
+    <a routerLink="/roommates" class="back-link">← Επιστροφή σε όλες τις αγγελίες</a>
+
+    <article class="roommate-profile surface-card surface-card--interactive">
+      <header class="profile-header">
+        <div class="avatar-wrapper">
+          <ng-container *ngIf="avatarFor(roommate) as avatar; else roommateAvatarPlaceholder">
+            <img [src]="avatar" [alt]="roommate.profile?.name || roommate.title" />
+          </ng-container>
+          <ng-template #roommateAvatarPlaceholder>
+            <div class="avatar-placeholder">{{ initialsFor(roommate) }}</div>
+          </ng-template>
+        </div>
+        <div class="profile-summary">
+          <span class="badge">Συγκάτοικος</span>
+          <span class="mode-badge" [ngClass]="modeBadgeClass(roommate)">
+            {{ modeBadgeLabel(roommate) }}
+          </span>
+          <h1>{{ roommate.profile?.name || roommate.title }}</h1>
+          <div class="profile-line">
+            <span *ngIf="roommate.profile?.age">{{ roommate.profile?.age }} ετών</span>
+            <span *ngIf="roommate.profile?.semester">{{ roommate.profile?.semester }}</span>
+            <span class="posted" *ngIf="postedAgo(roommate.createdAt) as posted">{{ posted }}</span>
+          </div>
+          <div class="profile-rating" *ngIf="roommate.ratingCount > 0">
+            <span class="star" aria-hidden="true">&#9733;</span>
+            <span class="value">{{ roommate.averageRating | number: '1.1-1' }}</span>
+            <span class="count">
+              {{ roommate.ratingCount }}
+              {{ roommate.ratingCount === 1 ? 'αξιολόγηση' : 'αξιολογήσεις' }}
+            </span>
+          </div>
+          <div class="profile-university" *ngIf="roommate.profile?.university">
+            {{ roommate.profile?.university }}
+            <span *ngIf="roommate.profile?.department"> · {{ roommate.profile?.department }}</span>
+          </div>
+          <div class="profile-location" *ngIf="roommate.location?.city || roommate.location?.area || roommate.location?.proximity">
+            {{ roommate.location?.city || roommate.propertyLocation }}
+            <span *ngIf="roommate.location?.area"> · {{ roommate.location?.area }}</span>
+            <span class="proximity" *ngIf="roommate.location?.proximity">({{ roommate.location?.proximity }})</span>
+          </div>
+          <div class="profile-rent">{{ formatRent(roommate.monthlyRent) }}</div>
+          <div class="profile-availability">
+            <span>Διαθέσιμο από {{ formatAvailableFrom(roommate.availableFrom) }}</span>
+            <span class="hint">{{ availabilityHint(roommate.availableFrom) }}</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="profile-body">
+        <article class="section-block">
+          <h2>Γνώρισε τον/την {{ roommate.profile?.name || 'υποψήφιο συγκάτοικο' }}</h2>
+          <p>{{ roommate.description }}</p>
+          <p *ngIf="hasDistinctBio(roommate)">{{ roommate.profile?.bio }}</p>
+        </article>
+
+        <article class="section-block rating-overview">
+          <div class="rating-header">
+            <h3>Αξιολογήσεις μελών</h3>
+            <div class="rating-summary" *ngIf="roommate.ratingCount > 0">
+              <span class="star" aria-hidden="true">&#9733;</span>
+              <span class="score">{{ roommate.averageRating | number: '1.1-1' }}</span>
+              <span class="count">
+                {{ roommate.ratingCount }}
+                {{ roommate.ratingCount === 1 ? 'αξιολόγηση' : 'αξιολογήσεις' }}
+              </span>
+            </div>
+          </div>
+          <p *ngIf="roommate.ratingCount === 0" class="no-reviews">
+            Γίνε ο πρώτος που θα μοιραστεί εμπειρία συγκατοίκησης για αυτό το προφίλ.
+          </p>
+          <ul class="reviews" *ngIf="roommate.ratingCount > 0">
+            <li *ngFor="let review of roommate.ratings | slice: 0:3">
+              <div class="review-header">
+                <span class="reviewer">{{ review.reviewerName }}</span>
+                <span class="review-score">
+                  <span class="star" aria-hidden="true">&#9733;</span>
+                  {{ review.score }}/5
+                </span>
+                <span class="review-date">{{ formatReviewDate(review.createdAt) }}</span>
+              </div>
+              <p class="review-comment" *ngIf="review.comment">{{ review.comment }}</p>
+            </li>
+          </ul>
+        </article>
+
+        <div class="info-grid">
+          <article class="info-card" *ngIf="roommate.profile?.interests?.length">
+            <h3>Ενδιαφέροντα</h3>
+            <ul class="chips">
+              <li *ngFor="let interest of roommate.profile?.interests">{{ interest }}</li>
+            </ul>
+          </article>
+
+          <article class="info-card" *ngIf="roommate.lifestyle?.length">
+            <h3>Στυλ διαβίωσης</h3>
+            <ul class="chips">
+              <li *ngFor="let style of roommate.lifestyle">{{ style }}</li>
+            </ul>
+          </article>
+
+          <article class="info-card" *ngIf="roommate.profile?.habits?.length">
+            <h3>Καθημερινές συνήθειες</h3>
+            <ul class="chips">
+              <li *ngFor="let habit of roommate.profile?.habits">{{ habit }}</li>
+            </ul>
+          </article>
+
+          <article class="info-card" *ngIf="roommate.propertyFeatures.length">
+            <h3>Χαρακτηριστικά σπιτιού</h3>
+            <ul class="chips">
+              <li *ngFor="let feature of roommate.propertyFeatures | slice:0:6">{{ feature }}</li>
+            </ul>
+          </article>
+
+          <article class="info-card" *ngIf="roommate.amenities?.length">
+            <h3>Παροχές</h3>
+            <ul class="chips">
+              <li *ngFor="let amenity of roommate.amenities | slice:0:6">{{ amenity }}</li>
+            </ul>
+          </article>
+        </div>
+
+        <article class="section-block" *ngIf="roommate.preferences.length">
+          <h3>Ιδανικός συγκάτοικος</h3>
+          <ul class="chips">
+            <li *ngFor="let preference of roommate.preferences">{{ preference }}</li>
+          </ul>
+        </article>
+
+        <ng-container *ngIf="canRate(); else ratingLock">
+          <article class="section-block rating-form">
+            <h3>{{ userRating ? 'Ενημέρωσε την αξιολόγησή σου' : 'Άφησε τη δική σου αξιολόγηση' }}</h3>
+            <form (ngSubmit)="onSubmitRating()" novalidate>
+              <div class="rating-input" role="group" aria-label="Βαθμολογία">
+                <button
+                  type="button"
+                  *ngFor="let option of ratingOptions"
+                  class="star"
+                  [class.active]="(ratingValue ?? 0) >= option"
+                  (click)="setRating(option)"
+                  [attr.aria-label]="option + ' αστέρια'"
+                >
+                  &#9733;
+                </button>
+                <span class="rating-hint">{{ ratingValue ? (ratingValue + ' / 5') : 'Επίλεξε αστέρια' }}</span>
+              </div>
+
+              <label class="comment-label" for="ratingComment">Σχόλιο (προαιρετικό)</label>
+              <textarea
+                id="ratingComment"
+                name="ratingComment"
+                rows="3"
+                [(ngModel)]="ratingComment"
+                [attr.maxlength]="ratingCommentLimit"
+                placeholder="Μοιράσου σύντομα την εμπειρία σου..."
+              ></textarea>
+              <div class="comment-hint">
+                {{ ratingComment.length }}/{{ ratingCommentLimit }} χαρακτήρες
+              </div>
+
+              <div class="form-messages">
+                <p class="error" *ngIf="ratingError">{{ ratingError }}</p>
+                <p class="success" *ngIf="ratingMessage">{{ ratingMessage }}</p>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">Αποθήκευση αξιολόγησης</button>
+              </div>
+            </form>
+          </article>
+        </ng-container>
+        <ng-template #ratingLock>
+          <article class="section-block rating-form rating-form--locked">
+            <h3>Αξιολόγηση συγκάτοικου</h3>
+            <p>{{ ratingRestrictionMessage() }}</p>
+            <button
+              *ngIf="!currentUserId"
+              type="button"
+              class="btn-secondary"
+              (click)="onLogin()"
+            >
+              Σύνδεση μέλους
+            </button>
+          </article>
+        </ng-template>
+      </section>
+
+      <footer class="profile-footer">
+        <div class="contact-card">
+          <h3>Επικοινωνία</h3>
+          <ng-container *ngIf="isLoggedIn && roommate.contact; else loginPrompt">
+            <div class="contact-details">
+              <span class="contact-name">{{ roommate.contact.name }}</span>
+              <a *ngIf="roommate.contact.phone" [href]="'tel:' + roommate.contact.phone">Τηλ: {{ roommate.contact.phone }}</a>
+              <a *ngIf="roommate.contact.email" [href]="'mailto:' + roommate.contact.email">Email: {{ roommate.contact.email }}</a>
+              <a *ngIf="roommate.contact.instagram" [href]="roommate.contact.instagram" target="_blank" rel="noopener">Instagram</a>
+              <a *ngIf="roommate.contact.facebook" [href]="roommate.contact.facebook" target="_blank" rel="noopener">Facebook</a>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="profile-actions">
+          <button type="button" class="btn-secondary" (click)="onPostRoommate()">Δημιούργησε τη δική σου αγγελία</button>
+          <button
+            type="button"
+            class="btn-danger"
+            *ngIf="canDeleteAd()"
+            (click)="onDeleteAd()"
+          >
+            Διαγραφή αγγελίας
+          </button>
+        </div>
+      </footer>
+    </article>
+
+    <section class="similar-section" *ngIf="similarAds.length">
+      <header class="similar-header">
+        <h2>Παρόμοιες αγγελίες που μπορεί να σε ενδιαφέρουν</h2>
+        <p>Άλλα μέλη με παρόμοιο στυλ ζωής και περιοχή.</p>
+      </header>
+
+      <div class="similar-grid">
+        <article
+          class="similar-card surface-card surface-card--interactive"
+          *ngFor="let ad of similarAds; trackBy: trackBySimilar"
+        >
+          <a [routerLink]="['/roommates', ad.id]">
+            <div class="media">
+              <ng-container *ngIf="avatarFor(ad) as adAvatar; else relatedAvatarPlaceholder">
+                <img [src]="adAvatar" [alt]="ad.profile?.name || ad.title" />
+              </ng-container>
+              <ng-template #relatedAvatarPlaceholder>
+                <div class="avatar-placeholder">{{ initialsFor(ad) }}</div>
+              </ng-template>
+              <span class="rent">{{ formatRent(ad.monthlyRent) }}</span>
+            </div>
+            <div class="copy">
+              <h3>{{ ad.profile?.name || ad.title }}</h3>
+              <p class="meta" *ngIf="ad.profile?.university">
+                {{ ad.profile?.university }}<span *ngIf="ad.profile?.department"> · {{ ad.profile?.department }}</span>
+              </p>
+              <p class="meta" *ngIf="ad.location?.city">
+                {{ ad.location?.city }}<span *ngIf="ad.location?.area"> · {{ ad.location?.area }}</span>
+              </p>
+              <p class="availability">Από {{ formatAvailableFrom(ad.availableFrom) }}</p>
+            </div>
+          </a>
+        </article>
+      </div>
+    </section>
+  </div>
+</section>
+
+<ng-template #loginPrompt>
+  <div class="login-required">
+    <p>Συνδέσου ως μέλος για να δεις τα στοιχεία επικοινωνίας και να επικοινωνήσεις με το προφίλ.</p>
+    <button type="button" class="btn-primary" (click)="onLogin()">Σύνδεση μέλους</button>
+  </div>
+</ng-template>
+
+<ng-template #notFoundState>
+  <section class="roommate-details-page not-found-state">
+    <div class="layout-container">
+      <div class="not-found surface-card">
+        <h2>Η αγγελία δεν είναι πλέον διαθέσιμη</h2>
+  <p>Ίσως το μέλος βρήκε ήδη συγκάτοικο ή η αγγελία μετακινήθηκε.</p>
+        <a routerLink="/roommates" class="btn-secondary">Επιστροφή στις αγγελίες</a>
+      </div>
+    </div>
+  </section>
+</ng-template>

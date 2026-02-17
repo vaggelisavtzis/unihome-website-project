@@ -1,0 +1,231 @@
+.add-temporary-page {
+  padding: clamp(48px, 8vw, 92px) 0;
+  background: linear-gradient(120deg, rgba(106, 27, 154, 0.05) 0%, rgba(246, 242, 250, 0.18) 100%);
+}
+
+.add-temporary-page .form-header {
+  display: grid;
+  gap: 12px;
+  padding: clamp(32px, 5vw, 46px);
+  margin-bottom: clamp(24px, 4vw, 32px);
+}
+
+.form-shell {
+  display: grid;
+  gap: clamp(24px, 4vw, 36px);
+  padding: clamp(28px, 4vw, 40px);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-header .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(106, 27, 154, 0.12);
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  width: fit-content;
+}
+
+.form-section {
+  display: grid;
+  gap: 18px;
+}
+
+.section-header {
+  display: grid;
+  gap: 6px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.32rem;
+  color: var(--color-primary-dark);
+}
+
+.section-header p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.field-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.form-group {
+  display: grid;
+  gap: 8px;
+}
+
+.form-group span {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  padding: 12px 14px;
+  font-size: 1rem;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(106, 27, 154, 0.15);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.amenities-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.amenity-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.92rem;
+}
+
+.existing-images {
+  display: grid;
+  gap: 12px;
+}
+
+.existing-images h3 {
+  margin: 0;
+  font-size: 1.02rem;
+  color: var(--color-primary-dark);
+}
+
+.existing-images ul {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.existing-images li {
+  display: grid;
+  grid-template-columns: auto max-content;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.existing-images img {
+  width: clamp(90px, 18vw, 140px);
+  height: clamp(60px, 12vw, 96px);
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.link-button--danger {
+  color: var(--color-error);
+}
+
+.link-button--danger:hover,
+.link-button--danger:focus {
+  color: #b71c1c;
+}
+
+.link-button:hover,
+.link-button:focus {
+  color: var(--color-primary-dark);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.selected-images {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.selected-images li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+  font-size: 0.92rem;
+  color: var(--color-text);
+}
+
+.form-feedback {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  background: rgba(33, 150, 83, 0.12);
+  color: var(--color-success);
+  font-size: 0.94rem;
+}
+
+.form-feedback.error {
+  background: rgba(198, 40, 40, 0.12);
+  color: var(--color-error);
+}
+
+@media (max-width: 720px) {
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-actions .btn-primary,
+  .form-actions .btn-secondary {
+    width: 100%;
+  }
+}
